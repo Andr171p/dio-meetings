@@ -1,0 +1,12 @@
+[project]
+name = "diomeetings"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp>=3.12.4",
+    "fastapi[all]>=0.115.12",
+    "librosa>=0.11.0",
+    "pydub>=0.25.1",
+    "soundfile>=0.13.1",
+]
