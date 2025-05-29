@@ -21,7 +21,3 @@ class TaskResult(BaseModel):
 
 class FinishedTaskResult(TaskResult):
     response_file_id: UUID
-
-
-class RecognizedText(BaseModel):
-    text: str

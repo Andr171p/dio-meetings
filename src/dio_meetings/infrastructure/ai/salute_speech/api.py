@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 import aiohttp
 import aiofiles
 
-from .schemas import TaskResult, FinishedTaskResult, RecognizedText
+from .schemas import TaskResult, FinishedTaskResult
 from .exceptions import AuthorizationError, UploadError, TaskError, DownloadError
 from .constants import (
     SALUTE_SPEECH_URL,
@@ -244,10 +244,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         )
                     data = await response.text()
             results = json.loads(data)["result"]
-            return [
-                result["results"][0]["normalized_text"]
-                for result in results
-            ]
+            return [result["results"][0]["normalized_text"] for result in results]
         except aiohttp.ClientError as e:
             self._logger.error(f"Error while downloading file: {e}")
             raise DownloadError(f"Error while downloading file: {e}") from e
