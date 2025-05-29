@@ -1,16 +1,12 @@
+from .base import BaseTranscripter
 
 
-class MeetingTranscriptor:
-    def __init__(self) -> None:
-        ...
+class MeetingProtocolService:
+    def __init__(
+            self,
+            transcripter: BaseTranscripter
+    ) -> None:
+        self._transcripter = transcripter
 
-    async def transcript(self) -> str:
-        ...
-
-
-class ProtocolWriter:
-    def __init__(self) -> None:
-        ...
-
-    async def write(self) -> str:
+    async def compose_protocol(self) -> ...:
         ...
