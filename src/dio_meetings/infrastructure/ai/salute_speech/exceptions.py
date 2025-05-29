@@ -6,3 +6,11 @@ class AuthorizationError(Exception):
 
 class UploadError(Exception):
     pass
+
+
+class TaskError(Exception):
+    pass
+
+
+class DownloadError(Exception):
+    pass

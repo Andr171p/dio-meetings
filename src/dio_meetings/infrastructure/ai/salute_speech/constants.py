@@ -2,7 +2,7 @@ from typing import Literal
 
 
 # Salute-Speech базовый URL:
-SALUTE_SPEECH_URL = "https://smartspeech.sber.ru/rest/v1/"
+SALUTE_SPEECH_URL = "https://smartspeech.sber.ru/rest/v1"
 
 # Sberbank-devices URL:
 SBER_DEVICES_URL = "https://ngw.devices.sberbank.ru:9443/api/v2"
@@ -15,7 +15,8 @@ AVAILABLE_SCOPES = Literal[
 
 # Допустимые Content-Type файлов:
 AVAILABLE_CONTENT_TYPES = Literal[
-    "audio/mpeg"
+    "audio/mpeg",
+    "audio/ogg;codecs=opus"
 ]
 
 # Допустимые модели Yandex-Speech:

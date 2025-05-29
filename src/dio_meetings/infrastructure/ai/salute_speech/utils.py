@@ -12,7 +12,7 @@ def get_content_type(file_path: Union[Path, str]) -> AVAILABLE_CONTENT_TYPES:
         case "mp3":
             return "audio/mpeg"
         case "ogg":
-            return ...
+            return "audio/ogg;codecs=opus"
         case _:
             raise ValueError("Unsupported file")
 

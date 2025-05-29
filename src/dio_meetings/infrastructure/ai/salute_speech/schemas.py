@@ -17,3 +17,12 @@ class TaskResult(BaseModel):
         "DONE",
         "ERROR"
     ]  # статус задачи
+
+
+class FinishedTaskResult(TaskResult):
+    response_file_id: UUID
+
+
+class RecognizedText(BaseModel):
+    text: str
+    normalized_text: str
