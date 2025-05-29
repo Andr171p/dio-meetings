@@ -17,9 +17,3 @@ class TaskResult(BaseModel):
         "DONE",
         "ERROR"
     ]  # статус задачи
-
-
-class CreatedTask(BaseModel):
-    """Созданная задача на распознавание"""
-    status: int
-    result: TaskResult

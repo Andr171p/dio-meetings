@@ -1,6 +1,6 @@
 import asyncio
 
-from src.dio_meetings.infrastructure.speech.salut_speech.api import SberDevicesAPI
+from src.dio_meetings.infrastructure.speech.salute_speech.api import SberDevicesAPI
 
 
 async def main() -> None:
