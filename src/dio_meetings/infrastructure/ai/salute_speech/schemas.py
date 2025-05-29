@@ -25,4 +25,3 @@ class FinishedTaskResult(TaskResult):
 
 class RecognizedText(BaseModel):
     text: str
-    normalized_text: str

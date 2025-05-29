@@ -208,6 +208,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         ssl=self._ssl_check
                 ) as response:
                     data = await response.json()
+            print(data)
             if data["status"] != STATUS_200_OK:
                 raise TaskError(f"Task Error. Status: {data["status"]}")
             if data.get("response_file_id"):
@@ -217,7 +218,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
             self._logger.error(f"Error while receiving task: {e}")
             raise TaskError(f"Error while receiving task: {e}") from e
 
-    async def download_file(self, response_file_id: UUID) -> Optional[list[RecognizedText]]:
+    async def download_file(self, response_file_id: UUID) -> Optional[list[str]]:
         url = f"{SALUTE_SPEECH_URL}/data:download"
         access_token = await self._authorize()
         headers = {
@@ -244,7 +245,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                     data = await response.text()
             results = json.loads(data)["result"]
             return [
-                RecognizedText.model_validate(result["results"][0])
+                result["results"][0]["normalized_text"]
                 for result in results
             ]
         except aiohttp.ClientError as e:
