@@ -19,9 +19,9 @@ from .constants import (
     SUPPORTED_LANGUAGES,
     ENABLE_LETTERS,
     EOU_TIMEOUT,
-    MAX_SPEECH_TIMEOUT,
-    NO_SPEECH_TIMEOUT,
-    HYPOTHESES_COUNT,
+    # MAX_SPEECH_TIMEOUT,
+    # NO_SPEECH_TIMEOUT,
+    # HYPOTHESES_COUNT,
     STATUS_200_OK,
     STATUS_401_UNAUTHORIZED
 )
@@ -170,7 +170,6 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 "enable_letters": ENABLE_LETTERS,
                 "eou_timeout": EOU_TIMEOUT
             }
-        print(json.dumps(payload))
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -181,7 +180,6 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 ) as response:
                     data = await response.json()
             if data["status"] != STATUS_200_OK:
-                print(data)
                 raise TaskError(f"Task Error. Status: {data["status"]}")
             return TaskResult.model_validate(data["result"])
         except aiohttp.ClientError as e:
@@ -209,8 +207,6 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         data=json.dumps(payload),
                         ssl=self._ssl_check
                 ) as response:
-                    text = await response.text()
-                    print(text)
                     data = await response.json()
             if data["status"] != STATUS_200_OK:
                 raise TaskError(f"Task Error. Status: {data["status"]}")
@@ -247,9 +243,8 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         )
                     data = await response.text()
             results = json.loads(data)["result"]
-            print(results)
             return [
-                RecognizedText.model_validate(result)
+                RecognizedText.model_validate(result["results"][0])
                 for result in results
             ]
         except aiohttp.ClientError as e:
