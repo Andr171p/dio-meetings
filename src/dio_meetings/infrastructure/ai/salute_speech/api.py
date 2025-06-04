@@ -173,7 +173,6 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 "enable_letters": ENABLE_LETTERS,
                 "eou_timeout": EOU_TIMEOUT
             }
-        print(payload)
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
