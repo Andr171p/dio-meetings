@@ -125,7 +125,6 @@ class SaluteSpeechAPI(SberDevicesAPI):
                                 f"Error: {error_data}"
                             )
                         data = await response.json()
-                        print(data)
             return UUID(data["result"]["request_file_id"])
         except aiohttp.ClientError as e:
             self._logger.error(f"Error while uploading file: {e}")
@@ -216,10 +215,9 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         ssl=self._ssl_check
                 ) as response:
                     data = await response.json()
-            print(data)
             if data["status"] != STATUS_200_OK:
                 raise TaskError(f"Task Error. Status: {data["status"]}")
-            if data.get("response_file_id"):
+            if data["result"].get("response_file_id"):
                 return FinishedTaskResult.model_validate(data["result"])
             return TaskResult.model_validate(data["result"])
         except aiohttp.ClientError as e:
