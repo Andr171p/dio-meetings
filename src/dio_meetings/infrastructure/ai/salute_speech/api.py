@@ -9,7 +9,7 @@ from uuid import UUID, uuid4
 import aiohttp
 import aiofiles
 
-from .schemas import TaskResult, FinishedTaskResult
+from .schemas import TaskResult, FinishedTaskResult, RecognizedResult
 from .exceptions import AuthorizationError, UploadError, TaskError, DownloadError
 from .constants import (
     SALUTE_SPEECH_URL,
@@ -19,9 +19,11 @@ from .constants import (
     SUPPORTED_LANGUAGES,
     ENABLE_LETTERS,
     EOU_TIMEOUT,
-    # MAX_SPEECH_TIMEOUT,
-    # NO_SPEECH_TIMEOUT,
-    # HYPOTHESES_COUNT,
+    ENABLE_SPEAKERS_DIARIZATION,
+    DEFAULT_SPEAKERS_COUNT,
+    MAX_SPEECH_TIMEOUT,
+    NO_SPEECH_TIMEOUT,
+    HYPOTHESES_COUNT,
     STATUS_200_OK,
     STATUS_401_UNAUTHORIZED
 )
@@ -133,6 +135,8 @@ class SaluteSpeechAPI(SberDevicesAPI):
             self,
             request_file_id: UUID,
             file_extension: str,
+            enable_speaker_diarization: bool = ENABLE_SPEAKERS_DIARIZATION,
+            speakers_count: int = DEFAULT_SPEAKERS_COUNT,
             language: SUPPORTED_LANGUAGES = "ru-RU",
             words: Optional[list[str]] = None
     ) -> Optional[TaskResult]:
@@ -141,8 +145,10 @@ class SaluteSpeechAPI(SberDevicesAPI):
         headers = {
             "Content-Type": "application/json",
             "Accept": "application/json",
-            "Authorization": f"Bearer {access_token}"
+            "Authorization": f"Bearer {access_token}",
+            "X-Request-ID": str(uuid4())  # Добавляем обязательный заголовок
         }
+
         audio_encoding = get_audio_encoding(file_extension)
         payload = {
             "options": {
@@ -151,18 +157,15 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 "sample_rate": 16000,
                 "language": language,
                 "enable_profanity_filter": self._profanity_check,
-                # "hypotheses_count": HYPOTHESES_COUNT,
-                # "no_speech_timeout": NO_SPEECH_TIMEOUT,
-                # "max_speech_timeout": MAX_SPEECH_TIMEOUT,
                 "channels_count": 1,
                 "speaker_separation_options": {
-                    "enable": False,
+                    "enable": enable_speaker_diarization,
                     "enable_only_main_speaker": False,
-                    "count": 1
-                },
-                "insight_models": ["csi", "call_features"]
+                    "count": min(speakers_count, 10)  # Ограничиваем максимальное количество спикеров
+                }
+                # Убираем insight_models для одноканального аудио
             },
-            "request_file_id": str(request_file_id)
+            "request_file_id": str(request_file_id),
         }
         if words:
             payload["hints"] = {
@@ -170,6 +173,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 "enable_letters": ENABLE_LETTERS,
                 "eou_timeout": EOU_TIMEOUT
             }
+        print(payload)
         try:
             async with aiohttp.ClientSession() as session:
                 async with session.post(
@@ -179,9 +183,14 @@ class SaluteSpeechAPI(SberDevicesAPI):
                         ssl=self._ssl_check
                 ) as response:
                     data = await response.json()
-            if data["status"] != STATUS_200_OK:
-                raise TaskError(f"Task Error. Status: {data["status"]}")
-            return TaskResult.model_validate(data["result"])
+                    if response.status != STATUS_200_OK:
+                        error_message = data.get("error", {}).get("message", "Unknown error")
+                        raise TaskError(
+                            f"Task Error. Status: {response.status}. "
+                            f"Error: {error_message}. "
+                            f"Full response: {data}"
+                        )
+                    return TaskResult.model_validate(data["result"])
         except aiohttp.ClientError as e:
             self._logger.error(f"Error while async recognizing: {e}")
             raise TaskError(f"Error while async recognizing: {e}") from e
@@ -243,6 +252,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                             f"Error: {error_data}"
                         )
                     data = await response.text()
+                    print(data)
             results = json.loads(data)["result"]
             return [result["results"][0]["normalized_text"] for result in results]
         except aiohttp.ClientError as e:

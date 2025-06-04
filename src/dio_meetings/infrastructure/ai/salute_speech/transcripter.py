@@ -5,6 +5,7 @@ from pathlib import Path
 
 from .api import SaluteSpeechAPI
 from .constants import AVAILABLE_SCOPES, DEFAULT_ASYNC_TIMEOUT
+
 from src.dio_meetings.base import BaseTranscripter
 from src.dio_meetings.utils import get_file_extension
 

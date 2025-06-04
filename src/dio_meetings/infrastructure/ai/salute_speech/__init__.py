@@ -1,5 +1,5 @@
 __all__ = (
-    "SaluteSpeechAPI"
+    "SaluteSpeechTranscripter"
 )
 
-from .api import SaluteSpeechAPI
+from .transcripter import SaluteSpeechTranscripter
