@@ -29,8 +29,8 @@ async def main() -> None:
     print(res)'''
     res = await salute_speech_api.download_file(UUID(response_file_id))
     print(res)
-    text = "\n\n".join(res)
-    print(text)
+    # text = "\n\n".join(res)
+    # print(text)
 
 
 if __name__ == "__main__":

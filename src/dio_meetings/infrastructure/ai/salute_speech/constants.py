@@ -84,3 +84,11 @@ DEFAULT_ASYNC_TIMEOUT = 1
 # Значения по умолчанию:
 ENABLE_SPEAKERS_DIARIZATION = True  # Разделение по спикерам
 DEFAULT_SPEAKERS_COUNT = 1  # Количество распознаваемых спикеров
+
+
+# Возможные эмоции спикера:
+EMOTIONS = Literal[
+    "positive",
+    "neutral",
+    "negative"
+]

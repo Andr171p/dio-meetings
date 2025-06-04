@@ -21,9 +21,9 @@ from .constants import (
     EOU_TIMEOUT,
     ENABLE_SPEAKERS_DIARIZATION,
     DEFAULT_SPEAKERS_COUNT,
-    MAX_SPEECH_TIMEOUT,
-    NO_SPEECH_TIMEOUT,
-    HYPOTHESES_COUNT,
+    # MAX_SPEECH_TIMEOUT,
+    # NO_SPEECH_TIMEOUT,
+    # HYPOTHESES_COUNT,
     STATUS_200_OK,
     STATUS_401_UNAUTHORIZED
 )
@@ -227,7 +227,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
             self._logger.error(f"Error while receiving task: {e}")
             raise TaskError(f"Error while receiving task: {e}") from e
 
-    async def download_file(self, response_file_id: UUID) -> Optional[list[str]]:
+    async def download_file(self, response_file_id: UUID) -> Optional[list[RecognizedResult]]:
         url = f"{SALUTE_SPEECH_URL}/data:download"
         access_token = await self._authorize()
         headers = {
@@ -252,9 +252,8 @@ class SaluteSpeechAPI(SberDevicesAPI):
                             f"Error: {error_data}"
                         )
                     data = await response.text()
-                    print(data)
-            results = json.loads(data)["result"]
-            return [result["results"][0]["normalized_text"] for result in results]
+            results = json.loads(data)
+            return [RecognizedResult.from_response(result) for result in results]
         except aiohttp.ClientError as e:
             self._logger.error(f"Error while downloading file: {e}")
             raise DownloadError(f"Error while downloading file: {e}") from e
