@@ -6,7 +6,9 @@ requires-python = ">=3.11"
 dependencies = [
     "aiofiles>=24.1.0",
     "aiohttp>=3.12.4",
+    "dishka>=1.6.0",
     "fastapi[all]>=0.115.12",
+    "faststream>=0.5.42",
     "langchain>=0.3.25",
     "langchain-community>=0.3.24",
     "langchain-gigachat>=0.3.10",
