@@ -2,6 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, status
 
+from ..schemas import ComposedProtocol
+
 
 protocols_router = APIRouter(
     prefix="/api/v1/protocols",
@@ -12,7 +14,7 @@ protocols_router = APIRouter(
 @protocols_router.get(
     path="/{protocol_id}",
     status_code=status.HTTP_200_OK,
-    response_model=...
+    response_model=ComposedProtocol
 )
-async def get_protocol(protocol_id: UUID) -> ...:
+async def get_protocol(protocol_id: UUID) -> ComposedProtocol:
     ...

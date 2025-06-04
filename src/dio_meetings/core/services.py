@@ -5,7 +5,7 @@ from pathlib import Path
 from .base import BaseTranscripter, BaseLLM
 from .entities import SystemMessage, UserMessage
 
-from ..template import PROTOCOL_TEMPLATE
+from ..templates import PROTOCOL_TEMPLATE
 from ..utils import get_transcriptions_text
 
 

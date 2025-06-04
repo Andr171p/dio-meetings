@@ -38,3 +38,8 @@ class Transcription(BaseModel):
     text: str  # Транскрибированный текст
     speaker_id: int  # ID спикера
     emotion: EMOTION  # Эмоция спикера
+
+
+class UploadMeeting(BaseModel):
+    name: str
+    file_path: str
