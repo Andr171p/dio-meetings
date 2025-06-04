@@ -2,6 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, UploadFile
 
+from ..schemas import AcceptedMeeting
+
 
 meetings_router = APIRouter(
     prefix="/api/v1/meetings",
@@ -12,9 +14,9 @@ meetings_router = APIRouter(
 @meetings_router.post(
     path="/upload-file",
     status_code=status.HTTP_201_CREATED,
-    response_model=...
+    response_model=AcceptedMeeting
 )
-async def upload_meeting(file: UploadFile) -> ...:
+async def upload_meeting(file: UploadFile) -> AcceptedMeeting:
     ...
 
 
