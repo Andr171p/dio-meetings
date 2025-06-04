@@ -2,8 +2,8 @@ from typing import Optional
 
 from .api import YandexGPTAPI
 
-from src.dio_meetings.base import BaseLLM
-from src.dio_meetings.entities import BaseMessage, AssistantMessage
+from src.dio_meetings.core.base import BaseLLM
+from .schemas import BaseMessage, AssistantMessage
 
 
 class YandexGPTLLM(BaseLLM):
