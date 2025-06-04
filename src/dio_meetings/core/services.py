@@ -10,11 +10,7 @@ from ..utils import get_transcriptions_text
 
 
 class MeetingProtocolComposer:
-    def __init__(
-            self,
-            transcripter: BaseTranscripter,
-            llm: BaseLLM
-    ) -> None:
+    def __init__(self, transcripter: BaseTranscripter, llm: BaseLLM) -> None:
         self._transcripter = transcripter
         self._llm = llm
 
