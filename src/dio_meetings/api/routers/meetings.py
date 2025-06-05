@@ -9,6 +9,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from ..schemas import AudioFile, AcceptedMeeting, MeetingStatus
 
 from src.dio_meetings.core.domain import Meeting
+from src.dio_meetings.core.base import FileRepository
 from src.dio_meetings.utils import get_file_extension
 
 
@@ -45,12 +46,8 @@ async def upload_meeting(
     status_code=status.HTTP_200_OK,
     response_model=MeetingStatus,
 )
-async def get_meeting_status(meeting_id: UUID) -> MeetingStatus: ...
-
-
-@meetings_router.get(
-    path="/{meeting_id}", 
-    status_code=status.HTTP_200_OK, 
-    response_model=...
-)
-async def get_meeting(meeting_id: UUID) -> ...: ...
+async def get_meeting_status(
+        meeting_id: UUID,
+        file_repository: FromDishka[FileRepository]
+) -> MeetingStatus:
+    ...

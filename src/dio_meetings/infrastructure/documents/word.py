@@ -31,7 +31,8 @@ class DOCXBuilder(DocumentBuilder):
         self._process_text(text)
         document_id = uuid4()
         file_buffer = io.BytesIO()
-        self.document.save(f"{document_id}.docx")
+        file_name = f"{document_id}.docx"
+        self.document.save(file_name)
         file_buffer.seek(0)
         return BuiltDocument(document_id=document_id, file_buffer=file_buffer)
 

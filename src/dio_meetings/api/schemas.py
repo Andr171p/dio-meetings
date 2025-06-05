@@ -30,6 +30,6 @@ class AcceptedMeeting(BaseModel):
 
 
 class MeetingStatus(BaseModel):
-    status: STATUS
     meeting_id: UUID
+    status: STATUS
     protocol_id: Optional[UUID]  # ID сформированного протокола встречи
