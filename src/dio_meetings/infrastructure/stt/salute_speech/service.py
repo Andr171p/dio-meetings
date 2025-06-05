@@ -1,14 +1,14 @@
 from typing import Union
 
 import asyncio
-from pathlib import Path
+import io
 
 from .api import SaluteSpeechAPI
 from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
 
 from src.dio_meetings.core.base import STTService
-from src.dio_meetings.utils import get_file_extension
 from src.dio_meetings.core.dto import Transcription
+from src.dio_meetings.constants import FILE_EXTENSION
 
 
 class SaluteSpeechService(STTService):
@@ -21,11 +21,15 @@ class SaluteSpeechService(STTService):
         self._salute_speech_api = SaluteSpeechAPI(api_key=api_key, scope=scope)
         self._async_timeout = async_timeout
 
-    async def transcript(self, file_path: Union[Path, str]) -> list[Transcription]:
-        request_file_id = await self._salute_speech_api.upload_file(file_path)
+    async def transcript(
+            self,
+            audio_file: Union[io.BytesIO, bytes],
+            file_extension: FILE_EXTENSION
+    ) -> list[Transcription]:
+        request_file_id = await self._salute_speech_api.upload_file(audio_file, file_extension)
         task_result = await self._salute_speech_api.async_recognize(
             request_file_id=request_file_id,
-            file_extension=get_file_extension(file_path)
+            file_extension=file_extension
         )
         while task_result.status != "DONE":
             await asyncio.sleep(self._async_timeout)

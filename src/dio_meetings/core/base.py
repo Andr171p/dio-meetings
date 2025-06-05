@@ -1,16 +1,19 @@
 from typing import Union
 
 from abc import ABC, abstractmethod
-from pathlib import Path
 from uuid import UUID
 import io
 
-from .dto import BaseMessage, AIMessage, Transcription
+from .dto import BaseMessage, AIMessage, Transcription, BuiltDocument
 
 
 class STTService(ABC):
     @abstractmethod
-    async def transcript(self, file_path: Union[Path, str]) -> list[Transcription]: pass
+    async def transcript(
+            self,
+            audio_file: Union[io.BytesIO, bytes],
+            file_extension: str
+    ) -> list[Transcription]: pass
 
 
 class LLMService(ABC):
@@ -20,7 +23,7 @@ class LLMService(ABC):
 
 class DocumentBuilder(ABC):
     @abstractmethod
-    def build(self, text: str) -> UUID: pass
+    def build(self, text: str) -> BuiltDocument: pass
 
 
 class FileRepository(ABC):

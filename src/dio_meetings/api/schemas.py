@@ -1,6 +1,6 @@
 from typing import Annotated, Literal, Optional
 
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime
 
 from pydantic import BaseModel, Field
@@ -24,7 +24,7 @@ STATUS = Literal[
 
 
 class AcceptedMeeting(BaseModel):
-    meeting_id: UUID = Field(default_factory=uuid4)  # ID задачи на составление протокола
+    meeting_id: UUID  # ID задачи на составление протокола
     status:  STATUS = "NEW"
     created_at: datetime = Field(default_factory=datetime.now)  # Дата создания задачи
 

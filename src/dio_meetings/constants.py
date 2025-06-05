@@ -15,3 +15,10 @@ SALUTE_SPEECH_SCOPE = Literal[
 ]
 
 BUCKET_NAME = "meeting-protocols"
+
+
+# Поддерживаемые форматы аудио:
+SUPPORTED_AUDIO_FORMATS = [
+    "mp3",
+    "ogg"
+]

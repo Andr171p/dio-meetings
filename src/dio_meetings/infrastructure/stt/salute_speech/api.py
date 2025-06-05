@@ -99,7 +99,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
         self._model = model
         self._profanity_check = profanity_check
 
-    async def upload_file(self, file: bytes, file_extension: str) -> Optional[UUID]:
+    async def upload_file(self, audio_file: bytes, file_extension: str) -> Optional[UUID]:
         url = f"{self._base_url}/data:upload"
         access_token = await self._authorize()
         content_type = get_content_type(file_extension)
@@ -112,7 +112,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 async with session.post(
                         url=url,
                         headers=headers,
-                        data=file,
+                        data=audio_file,
                         ssl=self._ssl_check
                 ) as response:
                     if response.status != STATUS_200_OK:

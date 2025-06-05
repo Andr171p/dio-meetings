@@ -1,9 +1,8 @@
-from typing import Union
+from uuid import UUID
 
-from pathlib import Path
-
-from .base import STTService, LLMService, DocumentBuilder
+from .domain import Meeting
 from .dto import SystemMessage, UserMessage, Transcription
+from .base import STTService, LLMService, DocumentBuilder, FileRepository
 
 from ..templates import PROTOCOL_TEMPLATE
 
@@ -14,19 +13,29 @@ class MeetingProtocolComposer:
             self,
             stt_service: STTService,
             llm_service: LLMService,
-            document_builder: DocumentBuilder
+            document_builder: DocumentBuilder,
+            file_repository: FileRepository
     ) -> None:
         self._stt_service = stt_service
         self._llm_service = llm_service
         self._document_builder = document_builder
+        self._file_repository = file_repository
 
-    async def compose(self, file_path: Union[Path, str]) -> str:
-        transcriptions = await self._stt_service.transcript(file_path)
+    async def compose(self, meeting: Meeting) -> UUID:
+        transcriptions = await self._stt_service.transcript(
+            audio_file=meeting.audio_record,
+            file_extension=meeting.audio_format
+        )
         formated_transcriptions = self._format_transcriptions(transcriptions)
         messages = [SystemMessage(text=PROTOCOL_TEMPLATE), UserMessage(text=formated_transcriptions)]
         ai_message = await self._llm_service.generate(messages)
-        file_id = self._document_builder.build(ai_message.text)
-        return ...
+        built_document = self._document_builder.build(ai_message.text)
+        await self._file_repository.upload_file(
+            file=built_document.file_buffer,
+            file_name=built_document.document_id,
+            bucket_name="meetings-protocols"
+        )
+        return built_document.document_id
 
     @staticmethod
     def _format_transcriptions(transcriptions: list[Transcription]) -> str:

@@ -1,7 +1,7 @@
 from typing import Union
 
-from pathlib import Path
-from uuid import UUID, uuid4
+import io
+from uuid import uuid4
 
 import markdown
 
@@ -13,6 +13,7 @@ from docx.shared import Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
 from src.dio_meetings.core.base import DocumentBuilder
+from src.dio_meetings.core.dto import BuiltDocument
 
 
 PARAGRAPH_LINE = 50
@@ -26,11 +27,13 @@ class DOCXBuilder(DocumentBuilder):
     def __init__(self) -> None:
         self.document = Document()
 
-    def build(self, text: str) -> UUID:
+    def build(self, text: str) -> BuiltDocument:
         self._process_text(text)
-        file_id = uuid4()
-        self.document.save(f"{file_id}.docx")
-        return file_id
+        document_id = uuid4()
+        file_buffer = io.BytesIO()
+        self.document.save(f"{document_id}.docx")
+        file_buffer.seek(0)
+        return BuiltDocument(document_id=document_id, file_buffer=file_buffer)
 
     def _process_text(self, text: str) -> None:
         html = markdown.markdown(text, extensions=["tables"])
