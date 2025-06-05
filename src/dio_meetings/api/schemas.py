@@ -33,9 +33,3 @@ class MeetingStatus(BaseModel):
     status: STATUS
     meeting_id: UUID
     protocol_id: Optional[UUID]  # ID сформированного протокола встречи
-
-
-class ComposedProtocol(BaseModel):
-    title: str  # Название
-    text: str  # Текст протокола в формате Markdown
-    file: File  # Word файл протокола

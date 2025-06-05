@@ -13,3 +13,5 @@ SALUTE_SPEECH_SCOPE = Literal[
     "SALUTE_SPEECH_PERS",
     "SALUTE_SPEECH_CORP"
 ]
+
+BUCKET_NAME = "meeting-protocols"

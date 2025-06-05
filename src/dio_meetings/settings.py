@@ -19,6 +19,13 @@ class YandexGPTSettings(BaseSettings):
     API_KEY: str = os.getenv("YANDEX_GPT_API_KEY")
 
 
+class MiniOSettings(BaseSettings):
+    MINIO_URL: str = os.getenv("MINIO_URL")
+    MINIO_USER: str = os.getenv("MINIO_USER")
+    MINIO_PASSWORD: str = os.getenv("MINIO_PASSWORD")
+
+
 class Settings(BaseSettings):
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()
+    minio: MiniOSettings = MiniOSettings()

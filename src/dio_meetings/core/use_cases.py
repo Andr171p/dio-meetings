@@ -25,8 +25,8 @@ class MeetingProtocolComposer:
         formated_transcriptions = self._format_transcriptions(transcriptions)
         messages = [SystemMessage(text=PROTOCOL_TEMPLATE), UserMessage(text=formated_transcriptions)]
         ai_message = await self._llm_service.generate(messages)
-        file_id = self._document_builder.build(ai_message.text,)
-        return file_id
+        file_id = self._document_builder.build(ai_message.text)
+        return ...
 
     @staticmethod
     def _format_transcriptions(transcriptions: list[Transcription]) -> str:

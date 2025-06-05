@@ -19,8 +19,7 @@ AUDIO_ENCODING_DICT: dict[str,AUDIO_ENCODING] = {
 }
 
 
-def get_content_type(file_path: Union[Path, str]) -> CONTENT_TYPE:
-    file_extension = get_file_extension(file_path)
+def get_content_type(file_extension: str) -> CONTENT_TYPE:
     content_type = CONTENT_TYPES_DICT.get(file_extension)
     if not content_type:
         raise ValueError("Unsupported file type")

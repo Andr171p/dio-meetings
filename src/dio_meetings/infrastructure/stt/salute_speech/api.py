@@ -3,11 +3,9 @@ from typing import Optional, Union
 import json
 import base64
 import logging
-from pathlib import Path
 from uuid import UUID, uuid4
 
 import aiohttp
-import aiofiles
 
 from .schemas import TaskResult, FinishedTaskResult, RecognizedResult
 from .exceptions import AuthorizationError, UploadError, TaskError, DownloadError
@@ -101,30 +99,29 @@ class SaluteSpeechAPI(SberDevicesAPI):
         self._model = model
         self._profanity_check = profanity_check
 
-    async def upload_file(self, file_path: Union[Path, str]) -> Optional[UUID]:
+    async def upload_file(self, file: bytes, file_extension: str) -> Optional[UUID]:
         url = f"{self._base_url}/data:upload"
         access_token = await self._authorize()
-        content_type = get_content_type(file_path)
+        content_type = get_content_type(file_extension)
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": content_type,
         }
         try:
             async with aiohttp.ClientSession() as session:
-                async with aiofiles.open(file_path, mode="rb") as file:
-                    async with session.post(
-                            url=url,
-                            headers=headers,
-                            data=file,
-                            ssl=self._ssl_check
-                    ) as response:
-                        if response.status != STATUS_200_OK:
-                            error_data = await response.json()
-                            raise UploadError(
-                                f"File upload failed. Status: {response.status}."
-                                f"Error: {error_data}"
-                            )
-                        data = await response.json()
+                async with session.post(
+                        url=url,
+                        headers=headers,
+                        data=file,
+                        ssl=self._ssl_check
+                ) as response:
+                    if response.status != STATUS_200_OK:
+                        error_data = await response.json()
+                        raise UploadError(
+                            f"File upload failed. Status: {response.status}."
+                            f"Error: {error_data}"
+                        )
+                    data = await response.json()
             return UUID(data["result"]["request_file_id"])
         except aiohttp.ClientError as e:
             self._logger.error(f"Error while uploading file: {e}")

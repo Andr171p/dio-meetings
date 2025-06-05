@@ -1,11 +1,12 @@
 from dishka import Provider, provide, Scope, from_context, make_async_container
 
 from .core.use_cases import MeetingProtocolComposer
-from .core.base import STTService, LLMService, DocumentBuilder
+from .core.base import STTService, LLMService, DocumentBuilder, FileRepository
 
 from .infrastructure.documents.word import DOCXBuilder
 from .infrastructure.llms.yandex_gpt import YandexGPTService
 from .infrastructure.stt.salute_speech import SaluteSpeechService
+from .infrastructure.s3.repository import S3Repository
 
 from .settings import Settings
 
@@ -42,6 +43,14 @@ class AppProvider(Provider):
             stt_service=stt_service,
             llm_service=llm_service,
             document_builder=document_builder
+        )
+
+    @provide(scope=Scope.APP)
+    def get_file_repository(self, config: Settings) -> FileRepository:
+        return S3Repository(
+            url=config.minio.MINIO_URL,
+            access_key=config.minio.MINIO_USER,
+            secret_key=config.minio.MINIO_PASSWORD
         )
 
 
