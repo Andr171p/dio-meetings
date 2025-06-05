@@ -6,7 +6,13 @@ from faststream.rabbit import RabbitBroker
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from ..schemas import AcceptedMeeting, MeetingStatus, UploadMeeting
+from ..schemas import (
+    AudioFile,
+    TitleForm,
+    ParticipantsForm,
+    AcceptedMeeting,
+    MeetingStatus
+)
 
 
 meetings_router = APIRouter(
@@ -22,8 +28,12 @@ meetings_router = APIRouter(
     response_model=AcceptedMeeting
 )
 async def upload_meeting(
-    meeting: UploadMeeting, broker: FromDishka[RabbitBroker]
-) -> AcceptedMeeting: ...
+        audio_file: AudioFile,
+        title: TitleForm,
+        participants: ParticipantsForm,
+        broker: FromDishka[RabbitBroker]
+) -> AcceptedMeeting:
+    ...
 
 
 @meetings_router.get(

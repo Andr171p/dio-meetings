@@ -1,17 +1,18 @@
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from uuid import UUID, uuid4
 from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from fastapi import File
+from fastapi import UploadFile, File, Form
 
 
-class UploadMeeting(BaseModel):
-    title: str  # Название встречи (оглавление)
-    participants: list[str]  # ФИО участников встречи
-    audio_file: File  # Аудио файл с записью встречи
+AudioFile = Annotated[UploadFile, File(..., description="Аудио запись встречи/совещания")]
+
+TitleForm = Annotated[str, Form(..., description="Тема/название совещания")]
+
+ParticipantsForm = Annotated[list[str], Form(..., description="Список участников встречи")]
 
 
 STATUS = Literal[
