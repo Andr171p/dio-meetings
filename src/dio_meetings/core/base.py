@@ -2,6 +2,7 @@ from typing import Union
 
 from abc import ABC, abstractmethod
 from pathlib import Path
+from uuid import UUID
 
 from .dto import BaseMessage, AIMessage, Transcription
 
@@ -14,3 +15,8 @@ class STTService(ABC):
 class LLMService(ABC):
     @abstractmethod
     async def generate(self, messages: list[BaseMessage]) -> AIMessage: pass
+
+
+class DocumentBuilder(ABC):
+    @abstractmethod
+    def build(self, text: str) -> UUID: pass

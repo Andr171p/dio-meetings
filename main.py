@@ -5,7 +5,7 @@ from src.dio_meetings.ioc import container
 from src.dio_meetings.core.use_cases import MeetingProtocolComposer
 
 
-file_path = "847y7aiqteg40hi6gu7ok7t7lrolqprb.mp3"
+file_path = "Ivashko Alexadr G(0079222696701)_20250527131818.mp3"
 
 
 async def main() -> None:
