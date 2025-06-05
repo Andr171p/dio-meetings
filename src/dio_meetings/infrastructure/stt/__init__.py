@@ -3,5 +3,5 @@ __all__ = (
     "SaluteSpeechTranscripter"
 )
 
-from .yandex_gpt import YandexGPTLLM
+from src.dio_meetings.infrastructure.llms.yandex_gpt import YandexGPTLLM
 from .salute_speech import SaluteSpeechTranscripter

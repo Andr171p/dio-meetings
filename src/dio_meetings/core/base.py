@@ -3,15 +3,14 @@ from typing import Union
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from src.dio_meetings.core.entities import BaseMessage, Transcription
-from src.dio_meetings.infrastructure.ai.yandex_gpt.schemas import AssistantMessage
+from .dto import BaseMessage, AIMessage, Transcription
 
 
-class BaseTranscripter(ABC):
+class STTService(ABC):
     @abstractmethod
     async def transcript(self, file_path: Union[Path, str]) -> list[Transcription]: pass
 
 
-class BaseLLM(ABC):
+class LLMService(ABC):
     @abstractmethod
-    async def generate(self, messages: list[BaseMessage]) -> AssistantMessage: pass
+    async def generate(self, messages: list[BaseMessage]) -> AIMessage: pass

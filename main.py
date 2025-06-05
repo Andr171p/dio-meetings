@@ -4,7 +4,7 @@ from uuid import UUID
 from pprint import pprint
 from dotenv import load_dotenv
 
-from src.dio_meetings.infrastructure.ai.salute_speech.api import SaluteSpeechAPI
+from src.dio_meetings.infrastructure.stt.salute_speech.api import SaluteSpeechAPI
 
 
 load_dotenv(".env")

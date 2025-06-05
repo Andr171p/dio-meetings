@@ -4,18 +4,18 @@ import asyncio
 from pathlib import Path
 
 from .api import SaluteSpeechAPI
-from .constants import AVAILABLE_SCOPES, DEFAULT_ASYNC_TIMEOUT
+from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
 
-from src.dio_meetings.core.base import BaseTranscripter
+from src.dio_meetings.core.base import STTService
 from src.dio_meetings.utils import get_file_extension
 from src.dio_meetings.core.entities import Transcription
 
 
-class SaluteSpeechTranscripter(BaseTranscripter):
+class SaluteSpeechService(STTService):
     def __init__(
             self,
             api_key: str,
-            scope: [AVAILABLE_SCOPES],
+            scope: SCOPE,
             async_timeout: int = DEFAULT_ASYNC_TIMEOUT
     ) -> None:
         self._salute_speech_api = SaluteSpeechAPI(api_key=api_key, scope=scope)

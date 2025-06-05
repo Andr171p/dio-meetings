@@ -6,41 +6,37 @@ from faststream.rabbit import RabbitBroker
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from ..schemas import UploadMeeting, AcceptedMeeting, MeetingStatus
+from ..schemas import AcceptedMeeting, MeetingStatus, UploadMeeting
 
 
 meetings_router = APIRouter(
-    prefix="/api/v1/meetings",
-    tags=["Meetings"],
+    prefix="/api/v1/meetings", 
+    tags=["Meetings"], 
     route_class=DishkaRoute
 )
 
 
 @meetings_router.post(
-    path="/upload",
-    status_code=status.HTTP_202_ACCEPTED,
+    path="/upload", 
+    status_code=status.HTTP_202_ACCEPTED, 
     response_model=AcceptedMeeting
 )
 async def upload_meeting(
-        meeting: UploadMeeting,
-        broker: FromDishka[RabbitBroker]
-) -> AcceptedMeeting:
-    ...
+    meeting: UploadMeeting, broker: FromDishka[RabbitBroker]
+) -> AcceptedMeeting: ...
 
 
 @meetings_router.get(
     path="/{meeting_id}/status",
     status_code=status.HTTP_200_OK,
-    response_model=MeetingStatus
+    response_model=MeetingStatus,
 )
-async def get_meeting_status(meeting_id: UUID) -> MeetingStatus:
-    ...
+async def get_meeting_status(meeting_id: UUID) -> MeetingStatus: ...
 
 
 @meetings_router.get(
-    path="/{meeting_id}",
-    status_code=status.HTTP_200_OK,
+    path="/{meeting_id}", 
+    status_code=status.HTTP_200_OK, 
     response_model=...
 )
-async def get_meeting(meeting_id: UUID) -> ...:
-    ...
+async def get_meeting(meeting_id: UUID) -> ...: ...

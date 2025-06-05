@@ -8,25 +8,25 @@ SALUTE_SPEECH_URL = "https://smartspeech.sber.ru/rest/v1"
 SBER_DEVICES_URL = "https://ngw.devices.sberbank.ru:9443/api/v2"
 
 # Доступные значения Scope:
-AVAILABLE_SCOPES = Literal[
+SCOPE = Literal[
     "SALUTE_SPEECH_PERS",
     "SALUTE_SPEECH_CORP"
 ]
 
 # Допустимые Content-Type файлов:
-AVAILABLE_CONTENT_TYPES = Literal[
+CONTENT_TYPE = Literal[
     "audio/mpeg",
     "audio/ogg;codecs=opus"
 ]
 
 # Допустимые модели Yandex-Speech:
-AVAILABLE_MODELS = Literal[
+MODEL = Literal[
     "general",
     "callcenter"
 ]
 
 # Допустимые форматы аудио:
-AVAILABLE_AUDIO_ENCODINGS = Literal[
+AUDIO_ENCODING = Literal[
     "PCM_S16LE",  # PCM signed 16bit little-endian, с заголовком WAV или без.
     # Частота дискретизации – от 8 до 96 кГц. Если без заголовка, то параметр sample_rate – обязательный.
     # Максимальное количество каналов – 8.
@@ -54,7 +54,7 @@ AVAILABLE_AUDIO_ENCODINGS = Literal[
 ]
 
 # Поддерживаемые языки:
-SUPPORTED_LANGUAGES = Literal[
+SUPPORTED_LANGUAGE = Literal[
     "ru-RU",  # Русский
     "en-US",  # Английский
     "kk-KZ"  # Казахский
@@ -87,7 +87,7 @@ DEFAULT_SPEAKERS_COUNT = 1  # Количество распознаваемых 
 
 
 # Возможные эмоции спикера:
-EMOTIONS = Literal[
+EMOTION = Literal[
     "positive",
     "neutral",
     "negative"

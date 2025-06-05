@@ -5,7 +5,7 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
-from .constants import EMOTIONS
+from .constants import EMOTION
 
 
 class TaskResult(BaseModel):
@@ -41,7 +41,7 @@ class RecognizedResult(BaseModel):
     """Результат распознавания части аудио"""
     text: str
     speaker_id: Optional[int]
-    emotion: EMOTIONS
+    emotion: EMOTION
 
     @classmethod
     def from_response(cls, response: dict[str, Any]) -> "RecognizedResult":
@@ -52,5 +52,5 @@ class RecognizedResult(BaseModel):
         )
 
     @staticmethod
-    def _get_emotion(emotions: dict[EMOTIONS, float]) -> EMOTIONS:
+    def _get_emotion(emotions: dict[EMOTION, float]) -> EMOTION:
         return max(emotions.items(), key=lambda x: x[1])[0]

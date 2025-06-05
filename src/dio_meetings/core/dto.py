@@ -6,7 +6,7 @@ from pydantic import BaseModel
 ROLE = Literal[
     "system",
     "user",
-    "assistant"
+    "ai"
 ]
 
 
@@ -30,16 +30,11 @@ class UserMessage(BaseMessage):
     role: ROLE = "user"
 
 
-class AssistantMessage(BaseMessage):
-    role: ROLE = "assistant"
+class AIMessage(BaseMessage):
+    role: ROLE = "ai"
 
 
 class Transcription(BaseModel):
     text: str  # Транскрибированный текст
     speaker_id: int  # ID спикера
     emotion: EMOTION  # Эмоция спикера
-
-
-class UploadMeeting(BaseModel):
-    name: str
-    file_path: str
