@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from pydantic_settings import BaseSettings
 
-from .constants import ENV_PATH
+from .constants import ENV_PATH, SALUTE_SPEECH_SCOPE
 
 
 load_dotenv(ENV_PATH)
@@ -11,7 +11,7 @@ load_dotenv(ENV_PATH)
 
 class SaluteSpeechSettings(BaseSettings):
     API_KEY: str = os.getenv("SALUTE_SPEECH_API_KEY")
-    SCOPE: str = os.getenv("SALUTE_SPEECH_SCOPE")
+    SCOPE: SALUTE_SPEECH_SCOPE = os.getenv("SALUTE_SPEECH_SCOPE")
 
 
 class YandexGPTSettings(BaseSettings):

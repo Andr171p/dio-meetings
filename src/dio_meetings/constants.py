@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pathlib import Path
 
 
@@ -5,3 +7,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Переменные окружения:
 ENV_PATH = BASE_DIR / ".env"
+
+
+SALUTE_SPEECH_SCOPE = Literal[
+    "SALUTE_SPEECH_PERS",
+    "SALUTE_SPEECH_CORP"
+]
