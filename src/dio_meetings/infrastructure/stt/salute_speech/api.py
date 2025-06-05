@@ -12,11 +12,11 @@ import aiofiles
 from .schemas import TaskResult, FinishedTaskResult, RecognizedResult
 from .exceptions import AuthorizationError, UploadError, TaskError, DownloadError
 from .constants import (
+    SCOPE,
+    MODEL,
+    SUPPORTED_LANGUAGE,
     SALUTE_SPEECH_URL,
     SBER_DEVICES_URL,
-    AVAILABLE_SCOPES,
-    AVAILABLE_MODELS,
-    SUPPORTED_LANGUAGES,
     ENABLE_LETTERS,
     EOU_TIMEOUT,
     ENABLE_SPEAKERS_DIARIZATION,
@@ -36,7 +36,7 @@ class SberDevicesAPI:
             api_key: Optional[str] = None,
             client_id: Optional[str] = None,
             client_secret: Optional[str] = None,
-            scope: AVAILABLE_SCOPES = "SALUTE_SPEECH_PERS",
+            scope: SCOPE = "SALUTE_SPEECH_PERS",
             ssl_check: bool = False
     ) -> None:
         self._api_key = api_key
@@ -84,9 +84,9 @@ class SaluteSpeechAPI(SberDevicesAPI):
             api_key: Optional[str] = None,
             client_id: Optional[str] = None,
             client_secret: Optional[str] = None,
-            scope: AVAILABLE_SCOPES = "SALUTE_SPEECH_PERS",
+            scope: SCOPE = "SALUTE_SPEECH_PERS",
             ssl_check: bool = False,
-            model: AVAILABLE_MODELS = "general",
+            model: MODEL = "general",
             profanity_check: bool = False,
     ) -> None:
         super().__init__(
@@ -136,7 +136,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
             file_extension: str,
             enable_speaker_diarization: bool = ENABLE_SPEAKERS_DIARIZATION,
             speakers_count: int = DEFAULT_SPEAKERS_COUNT,
-            language: SUPPORTED_LANGUAGES = "ru-RU",
+            language: SUPPORTED_LANGUAGE = "ru-RU",
             words: Optional[list[str]] = None
     ) -> Optional[TaskResult]:
         url = f"{self._base_url}/speech:async_recognize"

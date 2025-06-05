@@ -8,7 +8,7 @@ from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
 
 from src.dio_meetings.core.base import STTService
 from src.dio_meetings.utils import get_file_extension
-from src.dio_meetings.core.entities import Transcription
+from src.dio_meetings.core.dto import Transcription
 
 
 class SaluteSpeechService(STTService):
@@ -33,6 +33,6 @@ class SaluteSpeechService(STTService):
         response_file_id = task_result.response_file_id
         recognized_results = await self._salute_speech_api.download_file(response_file_id)
         return [
-            Transcription.model_validate(recognized_result)
+            Transcription.model_validate(recognized_result.model_dump())
             for recognized_result in recognized_results
         ]

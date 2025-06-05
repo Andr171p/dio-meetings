@@ -1,4 +1,4 @@
-from dishka import Provider, provide, Scope, from_context, make_container
+from dishka import Provider, provide, Scope, from_context, make_async_container
 
 from .core.base import STTService, LLMService
 from .core.use_cases import MeetingProtocolComposer
@@ -40,4 +40,4 @@ class AppProvider(Provider):
 
 settings = Settings()
 
-container = make_container(AppProvider(), context={Settings: settings})
+container = make_async_container(AppProvider(), context={Settings: settings})

@@ -1,5 +1,5 @@
-from .constants import MODELS
 from .api import YandexGPTAPI
+from .constants import MODELS, URL
 
 from src.dio_meetings.core.base import LLMService
 from src.dio_meetings.core.dto import BaseMessage, AIMessage
@@ -15,7 +15,8 @@ class YandexGPTService(LLMService):
         self._yandex_gpt_api = YandexGPTAPI(
             folder_id=folder_id,
             api_key=api_key,
-            model=model
+            model=model,
+            url=URL
         )
 
     async def generate(self, messages: list[BaseMessage]) -> AIMessage:
