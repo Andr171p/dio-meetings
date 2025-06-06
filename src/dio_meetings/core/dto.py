@@ -53,7 +53,7 @@ class BuiltDocument(BaseModel):
 
 
 class UploadingMeeting(BaseModel):
-    meeting_id: UUID
+    meeting_key: str
     created_at: datetime = Field(default_factory=datetime.now)
 
 

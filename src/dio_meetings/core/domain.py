@@ -1,15 +1,15 @@
 from typing import Optional, Union
 
 import io
-from uuid import UUID, uuid4
+from uuid import UUID
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, field_validator
 
 from ..constants import SUPPORTED_AUDIO_FORMATS, TASK_STATUS
 
 
 class Meeting(BaseModel):
-    meeting_id: UUID = Field(default_factory=uuid4)  # Уникальный ID встречи
+    meeting_key: str  # Уникальный ID ключ совещания в формате {uuid}.{audio_format}
     audio_record: Union[io.BytesIO, bytes]  # Аудио запись встречи / совещания
     audio_format: str  # Формат аудио из возможных поддерживаемых
 
@@ -22,6 +22,6 @@ class Meeting(BaseModel):
 
 class Task(BaseModel):
     task_id: UUID
-    meeting_id: UUID
+    meeting_key: str
     status: TASK_STATUS  # Статус выполнения задачи
-    protocol_id: Optional[UUID] = None
+    protocol_key: Optional[str] = None

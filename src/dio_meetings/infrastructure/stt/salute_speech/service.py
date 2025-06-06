@@ -8,7 +8,6 @@ from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
 
 from src.dio_meetings.core.base import STTService
 from src.dio_meetings.core.dto import Transcription
-from src.dio_meetings.constants import FILE_EXTENSION
 
 
 class SaluteSpeechService(STTService):
@@ -24,12 +23,12 @@ class SaluteSpeechService(STTService):
     async def transcript(
             self,
             audio_file: Union[io.BytesIO, bytes],
-            file_extension: FILE_EXTENSION
+            file_format: str
     ) -> list[Transcription]:
-        request_file_id = await self._salute_speech_api.upload_file(audio_file, file_extension)
+        request_file_id = await self._salute_speech_api.upload_file(audio_file, file_format)
         task_result = await self._salute_speech_api.async_recognize(
             request_file_id=request_file_id,
-            file_extension=file_extension
+            file_extension=file_format
         )
         while task_result.status != "DONE":
             await asyncio.sleep(self._async_timeout)

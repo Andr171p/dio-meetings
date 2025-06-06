@@ -99,10 +99,10 @@ class SaluteSpeechAPI(SberDevicesAPI):
         self._model = model
         self._profanity_check = profanity_check
 
-    async def upload_file(self, audio_file: bytes, file_extension: str) -> Optional[UUID]:
+    async def upload_file(self, audio_file: bytes, file_format: str) -> Optional[UUID]:
         url = f"{self._base_url}/data:upload"
         access_token = await self._authorize()
-        content_type = get_content_type(file_extension)
+        content_type = get_content_type(file_format)
         headers = {
             "Authorization": f"Bearer {access_token}",
             "Content-Type": content_type,

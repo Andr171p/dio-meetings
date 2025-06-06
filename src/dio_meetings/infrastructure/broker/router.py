@@ -21,11 +21,11 @@ async def compose_protocol(
 ) -> None:
     logger.info("Start composing meeting protocol")
     audio_record = await file_repository.download_file(
-        file_name=task.meeting_id,
+        file_name=task.meeting_key,
         bucket_name="meetings"
     )
     meeting = Meeting(
-        meeting_id=task.meeting_id,
+        meeting_key=task.meeting_key,
         audio_record=audio_record,
         audio_format="mp3"
     )
@@ -39,6 +39,6 @@ async def compose_protocol(
     await task_repository.update(
         task_id=task.task_id,
         status="DONE",
-        protocol_id=built_document.document_id
+        protocol_key=f"{built_document.document_id}.docx"
     )
     logger.info("Successfully saved meeting protocol")

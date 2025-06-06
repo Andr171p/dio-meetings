@@ -16,9 +16,9 @@ class TaskOrm(Base):
         primary_key=True,
         server_default=text("gen_random_uuid()")
     )
-    meeting_id: Mapped[UUID] = mapped_column(PG_UUID(as_uuid=True))
+    meeting_key: Mapped[str]
     status: Mapped[str]
-    protocol_id: Mapped[UUID | None] = mapped_column(PG_UUID(as_uuid=True), nullable=True)
+    protocol_key: Mapped[str | None] = mapped_column(nullable=True)
 
     __table_args__ = (
         CheckConstraint("status IN ('NEW', 'RUNNING', 'DONE', 'ERROR')", "check_status"),
@@ -27,8 +27,9 @@ class TaskOrm(Base):
     def __str__(self) -> str:
         return (f"{self.__class__.__name__}("
                 f"task_id={self.task_id}, "
+                f"meeting_key={self.meeting_key}, "
                 f"status={self.status}, "
-                f"protocol_id={self.protocol_id}, "
+                f"protocol_key={self.protocol_key}, "
                 f"created_at={self.created_at})")
 
     def __repr__(self) -> str:

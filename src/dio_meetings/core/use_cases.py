@@ -1,6 +1,6 @@
 from .domain import Meeting
 from .dto import SystemMessage, UserMessage, Transcription, BuiltDocument
-from .base import STTService, LLMService, DocumentBuilder, FileRepository
+from .base import STTService, LLMService, DocumentBuilder
 
 from ..templates import PROTOCOL_TEMPLATE
 
@@ -10,13 +10,11 @@ class ProtocolComposer:
             self,
             stt_service: STTService,
             llm_service: LLMService,
-            document_builder: DocumentBuilder,
-            file_repository: FileRepository
+            document_builder: DocumentBuilder
     ) -> None:
         self._stt_service = stt_service
         self._llm_service = llm_service
         self._document_builder = document_builder
-        self._file_repository = file_repository
 
     async def compose(self, meeting: Meeting) -> BuiltDocument:
         transcriptions = await self._stt_service.transcript(
