@@ -9,7 +9,7 @@ from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 from aiobotocore.config import AioConfig
 
-from .eceptions import S3Error
+from .exceptions import S3Error
 
 from src.dio_meetings.core.base import FileRepository
 
