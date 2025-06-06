@@ -58,7 +58,7 @@ class UploadingMeeting(BaseModel):
 
 
 class TaskCreate(BaseModel):
-    meeting_id: UUID
+    meeting_key: str
     status: TASK_STATUS
 
 

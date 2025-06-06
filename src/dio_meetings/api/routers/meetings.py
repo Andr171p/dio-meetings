@@ -1,4 +1,4 @@
-from uuid import UUID, uuid4
+from uuid import uuid4
 
 from fastapi import APIRouter, status, HTTPException
 from fastapi.responses import StreamingResponse
