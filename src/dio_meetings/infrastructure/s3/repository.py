@@ -18,7 +18,13 @@ SERVICE_NAME = "s3"
 
 
 class S3Repository(FileRepository):
-    def __init__(self, url: str, access_key: str, secret_key: str, secure: bool = False) -> None:
+    def __init__(
+            self,
+            url: str,
+            access_key: str,
+            secret_key: str,
+            secure: bool = False
+    ) -> None:
         self._logger = logging.getLogger(self.__class__.__name__)
         self._params = {
             "endpoint_url": url,
