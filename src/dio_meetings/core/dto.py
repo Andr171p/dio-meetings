@@ -2,8 +2,12 @@ from typing import Literal
 
 import io
 from uuid import UUID
+from datetime import datetime
 
 from pydantic import BaseModel
+
+from .domain import Task
+from ..constants import TASK_STATUS
 
 
 ROLE = Literal[
@@ -46,3 +50,17 @@ class Transcription(BaseModel):
 class BuiltDocument(BaseModel):
     document_id: UUID
     file_buffer: io.BytesIO
+
+
+class UploadingMeeting(BaseModel):
+    meeting_id: UUID
+    created_at: datetime
+
+
+class TaskCreate(BaseModel):
+    meeting_id: UUID
+    status: TASK_STATUS
+
+
+class TaskRead(Task):
+    created_at: datetime

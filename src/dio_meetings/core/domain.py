@@ -1,11 +1,11 @@
-from typing import Union
+from typing import Optional, Union
 
 import io
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
 
-from ..constants import SUPPORTED_AUDIO_FORMATS
+from ..constants import SUPPORTED_AUDIO_FORMATS, TASK_STATUS
 
 
 class Meeting(BaseModel):
@@ -18,3 +18,10 @@ class Meeting(BaseModel):
         if audio_format not in SUPPORTED_AUDIO_FORMATS:
             raise ValueError("Unsupported audio format")
         return audio_format
+
+
+class Task(BaseModel):
+    task_id: UUID
+    meeting_id: UUID
+    status: TASK_STATUS  # Статус выполнения задачи
+    protocol_id: Optional[UUID] = None

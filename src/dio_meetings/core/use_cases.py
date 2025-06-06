@@ -6,7 +6,7 @@ from ..templates import PROTOCOL_TEMPLATE
 
 
 
-class MeetingProtocolComposer:
+class ProtocolComposer:
     def __init__(
             self,
             stt_service: STTService,

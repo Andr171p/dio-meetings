@@ -25,6 +25,10 @@ class MiniOSettings(BaseSettings):
     MINIO_PASSWORD: str = os.getenv("MINIO_PASSWORD")
 
 
+class PostgresSettings(BaseSettings):
+    ...
+
+
 class Settings(BaseSettings):
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()

@@ -22,3 +22,11 @@ SUPPORTED_AUDIO_FORMATS = [
     "mp3",
     "ogg"
 ]
+
+# Статусы выполнения задачи:
+TASK_STATUS = Literal[
+    "NEW",
+    "RUNNING",
+    "DONE",
+    "ERROR"
+]

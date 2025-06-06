@@ -1,10 +1,13 @@
-from typing import Union
+from typing import Protocol, Optional, Union
 
 from abc import ABC, abstractmethod
 from uuid import UUID
 import io
 
-from .dto import BaseMessage, AIMessage, Transcription, BuiltDocument
+from pydantic import BaseModel
+
+from domain import Task
+from .dto import BaseMessage, AIMessage, Transcription, BuiltDocument, TaskCreate, TaskRead
 
 
 class STTService(ABC):
@@ -40,3 +43,25 @@ class FileRepository(ABC):
 
     @abstractmethod
     async def delete_file(self, file_name: Union[UUID, str], bucket_name: str) -> str: pass
+
+
+class MessageBroker(Protocol):
+    async def publish(
+            self,
+            messages: Union[BaseModel, list[BaseModel], dict],
+            queue: str
+    ) -> None: pass
+
+
+class TaskRepository(ABC):
+    @abstractmethod
+    async def create(self, task: TaskCreate) -> TaskRead: pass
+
+    @abstractmethod
+    async def read(self, task_id: UUID) -> Optional[TaskRead]: pass
+
+    @abstractmethod
+    async def update(self, task: Task) -> TaskRead: pass
+
+    @abstractmethod
+    async def delete(self, task_id: UUID) -> bool: pass
