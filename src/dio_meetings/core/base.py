@@ -2,7 +2,6 @@ from typing import Protocol, Optional, Union
 
 from abc import ABC, abstractmethod
 from uuid import UUID
-import io
 
 from pydantic import BaseModel
 
@@ -20,7 +19,7 @@ class STTService(ABC):
     @abstractmethod
     async def transcript(
             self,
-            audio_file: Union[io.BytesIO, bytes],
+            audio_file: bytes,
             file_extension: str
     ) -> list[Transcription]: pass
 
@@ -39,16 +38,16 @@ class FileRepository(ABC):
     @abstractmethod
     async def upload_file(
             self,
-            file: Union[io.BytesIO, bytes],
-            file_name: Union[UUID, str],
+            file: bytes,
+            file_name: str,
             bucket_name: str
     ) -> None: pass
 
     @abstractmethod
-    async def download_file(self, file_name: Union[UUID, str], bucket_name: str) -> ...: pass
+    async def download_file(self, file_name: str, bucket_name: str) -> ...: pass
 
     @abstractmethod
-    async def delete_file(self, file_name: Union[UUID, str], bucket_name: str) -> str: pass
+    async def delete_file(self, file_name: str, bucket_name: str) -> str: pass
 
 
 class MessageBroker(Protocol):

@@ -8,12 +8,13 @@ from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 
 from .exceptions import S3Error
+from ...core.base import FileRepository
 
 
 SERVICE_NAME = "s3"
 
 
-class S3Repository:
+class S3Repository(FileRepository):
     def __init__(
             self,
             url: str,

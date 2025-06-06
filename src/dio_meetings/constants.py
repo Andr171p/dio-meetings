@@ -30,3 +30,7 @@ TASK_STATUS = Literal[
     "DONE",
     "ERROR"
 ]
+
+# Имена s3 бакетов для хранения объектов:
+MEETINGS_BUCKET_NAME = "meetings"
+PROTOCOLS_BUCKET_NAME = "protocols"
