@@ -34,3 +34,17 @@ async def get_protocol(
         media_type="application/octet-stream",
         headers={"Content-Disposition": f"attachment; filename={protocol_id}"}
     )
+
+
+@protocols_router.delete(
+    path="/{protocol_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_protocol(
+        protocol_id: UUID,
+        file_repository: FromDishka[FileRepository]
+) -> None:
+    await file_repository.delete_file(
+        file_name=protocol_id,
+        bucket_name="protocols"
+    )

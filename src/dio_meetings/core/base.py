@@ -6,8 +6,14 @@ import io
 
 from pydantic import BaseModel
 
-from domain import Task
-from .dto import BaseMessage, AIMessage, Transcription, BuiltDocument, TaskCreate, TaskRead
+from .dto import (
+    BaseMessage,
+    AIMessage,
+    Transcription,
+    BuiltDocument,
+    TaskCreate,
+    CreatedTask
+)
 
 
 class STTService(ABC):
@@ -55,13 +61,13 @@ class MessageBroker(Protocol):
 
 class TaskRepository(ABC):
     @abstractmethod
-    async def create(self, task: TaskCreate) -> TaskRead: pass
+    async def create(self, task: TaskCreate) -> CreatedTask: pass
 
     @abstractmethod
-    async def read(self, task_id: UUID) -> Optional[TaskRead]: pass
+    async def read(self, task_id: UUID) -> Optional[CreatedTask]: pass
 
     @abstractmethod
-    async def update(self, task: Task) -> TaskRead: pass
+    async def update(self, task_id: UUID, **kwargs) -> CreatedTask: pass
 
     @abstractmethod
     async def delete(self, task_id: UUID) -> bool: pass

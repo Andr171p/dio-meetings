@@ -62,5 +62,5 @@ class TaskCreate(BaseModel):
     status: TASK_STATUS
 
 
-class TaskRead(Task):
+class CreatedTask(Task):
     created_at: datetime
