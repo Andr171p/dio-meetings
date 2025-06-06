@@ -1,6 +1,6 @@
 from dishka import Provider, provide, Scope, from_context, make_async_container
 
-from .core.use_cases import MeetingProtocolComposer
+from .core.use_cases import ProtocolComposer
 from .core.base import STTService, LLMService, DocumentBuilder, FileRepository
 
 from .infrastructure.documents.word import DOCXBuilder
@@ -38,8 +38,8 @@ class AppProvider(Provider):
             stt_service: STTService,
             llm_service: LLMService,
             document_builder: DocumentBuilder
-    ) -> MeetingProtocolComposer:
-        return MeetingProtocolComposer(
+    ) -> ProtocolComposer:
+        return ProtocolComposer(
             stt_service=stt_service,
             llm_service=llm_service,
             document_builder=document_builder

@@ -49,7 +49,14 @@ class Transcription(BaseModel):
 
 class BuiltDocument(BaseModel):
     document_id: UUID
-    file_buffer: io.BytesIO
+    file_buffer: bytes
+
+    @classmethod
+    def from_bytes_io(cls, document_id: UUID, file_buffer: io.BytesIO) -> "BuiltDocument":
+        return cls(
+            document_id=document_id,
+            file_buffer=file_buffer.getvalue()
+        )
 
 
 class UploadingMeeting(BaseModel):

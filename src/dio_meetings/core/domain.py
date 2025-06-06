@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Optional
 
 import io
 from uuid import UUID
@@ -10,7 +10,7 @@ from ..constants import SUPPORTED_AUDIO_FORMATS, TASK_STATUS
 
 class Meeting(BaseModel):
     meeting_key: str  # Уникальный ID ключ совещания в формате {uuid}.{audio_format}
-    audio_record: Union[io.BytesIO, bytes]  # Аудио запись встречи / совещания
+    audio_record: bytes  # Аудио запись встречи / совещания
     audio_format: str  # Формат аудио из возможных поддерживаемых
 
     @field_validator("audio_format")

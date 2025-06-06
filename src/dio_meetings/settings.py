@@ -26,7 +26,7 @@ class MiniOSettings(BaseSettings):
 
 
 class PostgresSettings(BaseSettings):
-    ...
+    PG_USER: str = os.getenv("POSTGRES_USER")
 
 
 class Settings(BaseSettings):
