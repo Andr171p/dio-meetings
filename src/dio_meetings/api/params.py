@@ -13,23 +13,3 @@ AudioFile = Annotated[UploadFile, File(..., description="Аудио запись
 TitleForm = Annotated[str, Form(..., description="Тема/название совещания")]
 
 ParticipantsForm = Annotated[list[str], Form(..., description="Список участников встречи")]
-
-
-STATUS = Literal[
-    "NEW",  # Новое совещание
-    "PROCESS",  # В процессе составления протокола
-    "DONE",  # Протокол составлен
-    "ERROR"  # Ошибка при составлении протокола
-]
-
-
-class AcceptedMeeting(BaseModel):
-    meeting_id: UUID  # ID задачи на составление протокола
-    status:  STATUS = "NEW"
-    created_at: datetime = Field(default_factory=datetime.now)  # Дата создания задачи
-
-
-class MeetingStatus(BaseModel):
-    meeting_id: UUID
-    status: STATUS
-    protocol_id: Optional[UUID]  # ID сформированного протокола встречи
