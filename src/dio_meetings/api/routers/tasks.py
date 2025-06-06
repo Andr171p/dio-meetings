@@ -4,8 +4,8 @@ from fastapi import APIRouter, status
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from src.dio_meetings.core.domain import Task
-from src.dio_meetings.core.base import MessageBroker
+from ...core.domain import Task
+from ...core.base import MessageBroker
 
 
 tasks_router = APIRouter(

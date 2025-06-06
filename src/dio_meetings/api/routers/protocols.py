@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from src.dio_meetings.core.base import FileRepository
+from ...core.base import FileRepository
 
 
 protocols_router = APIRouter(
@@ -23,14 +23,14 @@ async def get_protocol(
         protocol_id: UUID,
         file_repository: FromDishka[FileRepository]
 ) -> StreamingResponse:
-    data = await file_repository.download_file(
+    file_content = await file_repository.download_file(
         file_name=protocol_id,
-        bucket_name="meeting-protocols"
+        bucket_name="protocols"
     )
-    if not data:
+    if not file_content:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Protocol not found")
     return StreamingResponse(
-        content=data,
+        content=file_content,
         media_type="application/octet-stream",
         headers={"Content-Disposition": f"attachment; filename={protocol_id}"}
     )

@@ -4,7 +4,7 @@ import io
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from .domain import Task
 from ..constants import TASK_STATUS
@@ -54,7 +54,7 @@ class BuiltDocument(BaseModel):
 
 class UploadingMeeting(BaseModel):
     meeting_id: UUID
-    created_at: datetime
+    created_at: datetime = Field(default_factory=datetime.now)
 
 
 class TaskCreate(BaseModel):

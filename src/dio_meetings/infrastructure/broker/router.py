@@ -5,7 +5,7 @@ from dishka.integrations.base import FromDishka
 
 from src.dio_meetings.core.domain import Meeting
 from src.dio_meetings.core.base import FileRepository
-from src.dio_meetings.core.use_cases import MeetingProtocolComposer
+from src.dio_meetings.core.use_cases import ProtocolComposer
 
 
 meetings_router = RabbitRouter()

@@ -5,7 +5,6 @@ from .base import STTService, LLMService, DocumentBuilder, FileRepository
 from ..templates import PROTOCOL_TEMPLATE
 
 
-
 class ProtocolComposer:
     def __init__(
             self,
