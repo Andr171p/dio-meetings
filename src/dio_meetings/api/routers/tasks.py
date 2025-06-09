@@ -7,6 +7,8 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 from ...core.dto import CreatedTask, TaskCreate
 from ...core.base import TaskRepository, MessageBroker
 
+from ..params import TaskCreateSchema
+
 
 tasks_router = APIRouter(
     prefix="/api/v1/tasks",
@@ -21,10 +23,11 @@ tasks_router = APIRouter(
     response_model=CreatedTask
 )
 async def create_task(
-        task: TaskCreate,
+        task: TaskCreateSchema,
         task_repository: FromDishka[TaskRepository],
         broker: FromDishka[MessageBroker]
 ) -> CreatedTask:
+    task = TaskCreate(meeting_key=task.meeting_key, status="RUNNING")
     created_task = await task_repository.create(task)
     if not created_task:
         raise HTTPException(

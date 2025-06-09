@@ -1,7 +1,6 @@
 from typing import Literal
 
 import io
-from uuid import UUID
 from datetime import datetime
 
 from pydantic import BaseModel, Field
