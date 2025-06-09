@@ -1,18 +1,39 @@
 from dishka import Provider, provide, Scope, from_context, make_async_container
 
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from faststream.redis import RedisBroker
+
 from .core.use_cases import ProtocolComposer
-from .core.base import STTService, LLMService, DocumentBuilder, FileRepository
+from .core.base import (
+    STTService,
+    LLMService,
+    DocumentBuilder,
+    FileRepository,
+    TaskRepository,
+    MessageBroker
+)
 
 from .infrastructure.documents.word import DOCXBuilder
 from .infrastructure.llms.yandex_gpt import YandexGPTService
 from .infrastructure.stt.salute_speech import SaluteSpeechService
 from .infrastructure.s3.repository import S3Repository
+from .infrastructure.database.session import create_session_maker
+from .infrastructure.database.repository import SQLTaskRepository
 
 from .settings import Settings
 
 
 class AppProvider(Provider):
     config = from_context(provides=Settings, scope=Scope.APP)
+
+    @provide(scope=Scope.APP)
+    def get_message_broker(self, config: Settings) -> MessageBroker:
+        return RedisBroker(...)
+
+    @provide(scope=Scope.APP)
+    def get_session_maker(self, config: Settings) -> async_sessionmaker[AsyncSession]:
+        return create_session_maker(config.postgres)
 
     @provide(scope=Scope.APP)
     def get_stt_service(self, config: Settings) -> STTService:
@@ -52,6 +73,10 @@ class AppProvider(Provider):
             access_key=config.minio.MINIO_USER,
             secret_key=config.minio.MINIO_PASSWORD
         )
+
+    @provide(scope=Scope.APP)
+    def get_task_repository(self, session_factory: async_sessionmaker[AsyncSession]) -> TaskRepository:
+        return SQLTaskRepository(session_factory)
 
 
 settings = Settings()

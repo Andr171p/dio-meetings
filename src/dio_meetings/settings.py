@@ -41,3 +41,4 @@ class Settings(BaseSettings):
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()
     minio: MiniOSettings = MiniOSettings()
+    postgres: PostgresSettings = PostgresSettings()
