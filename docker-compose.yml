@@ -7,7 +7,7 @@ services:
       MINIO_ROOT_USER: miniouser     # Логин для root-пользователя
       MINIO_ROOT_PASSWORD: miniopassword  # Пароль для root-пользователя
     volumes:
-      - ./minio-data:/data       # Локальная папка для хранения данных
+      - ./.docker/minio-data:/data       # Локальная папка для хранения данных
     ports:
       - "9000:9000"              # S3 API (для SDK и CLI)
       - "9001:9001"              # Web Console (UI)
