@@ -5,6 +5,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
 from ...core.base import FileRepository
 from ...core.exceptions import DownloadError
+from ...constants import PROTOCOLS_BUCKET_NAME
 
 
 protocols_router = APIRouter(
@@ -25,7 +26,7 @@ async def download_protocol(
     try:
         file_content = await file_repository.download_file(
             file_name=protocol_key,
-            bucket_name="protocols"
+            bucket_name=PROTOCOLS_BUCKET_NAME
         )
     except DownloadError:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Protocol not found")
@@ -46,5 +47,5 @@ async def delete_protocol(
 ) -> None:
     await file_repository.delete_file(
         file_name=protocol_key,
-        bucket_name="protocols"
+        bucket_name=PROTOCOLS_BUCKET_NAME
     )
