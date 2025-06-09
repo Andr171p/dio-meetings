@@ -81,3 +81,4 @@ secrets.env
 scripts
 .docker
 *.mp3
+assets
