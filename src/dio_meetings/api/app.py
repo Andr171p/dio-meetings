@@ -3,12 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from dishka.integrations.fastapi import setup_dishka
 
-from ..ioc import container
+from .lifespan import lifespan
 from .routers import meetings_router, tasks_router, protocols_router
+
+from ..ioc import container
 
 
 def create_fastapi_app() -> FastAPI:
-    app = FastAPI()
+    app = FastAPI(lifespan=lifespan)
     app.include_router(meetings_router)
     app.include_router(tasks_router)
     app.include_router(protocols_router)

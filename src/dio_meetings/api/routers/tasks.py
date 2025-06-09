@@ -2,10 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
+from faststream.redis import RedisBroker
+
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
+from ...core.base import TaskRepository
 from ...core.dto import CreatedTask, TaskCreate
-from ...core.base import TaskRepository, MessageBroker
 
 from ..params import TaskCreateSchema
 
@@ -25,7 +27,7 @@ tasks_router = APIRouter(
 async def create_task(
         task: TaskCreateSchema,
         task_repository: FromDishka[TaskRepository],
-        broker: FromDishka[MessageBroker]
+        broker: FromDishka[RedisBroker]
 ) -> CreatedTask:
     task = TaskCreate(meeting_key=task.meeting_key, status="RUNNING")
     created_task = await task_repository.create(task)
@@ -35,7 +37,7 @@ async def create_task(
             detail="Error while creating task"
         )
     created_task.status = "NEW"
-    await broker.publish(created_task, queue="tasks")
+    await broker.publish(created_task, channel="tasks")
     return created_task
 
 

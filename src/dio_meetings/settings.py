@@ -37,8 +37,18 @@ class PostgresSettings(BaseSettings):
         return f"postgresql+{PG_DRIVER}://{self.PG_USER}:{self.PG_PASSWORD}@{self.PG_HOST}:{self.PG_PORT}/{self.PG_DB}"
 
 
+class RedisSettings(BaseSettings):
+    REDIS_HOST: str = os.getenv("REDIS_HOST")
+    REDIS_PORT: int = os.getenv("REDIS_PORT")
+
+    @property
+    def redis_url(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
+
+
 class Settings(BaseSettings):
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()
     minio: MiniOSettings = MiniOSettings()
     postgres: PostgresSettings = PostgresSettings()
+    redis: RedisSettings = RedisSettings()

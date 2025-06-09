@@ -1,3 +1,5 @@
+from typing import Optional
+
 from .domain import Meeting
 from .dto import SystemMessage, UserMessage, Transcription, BuiltDocument
 from .base import STTService, LLMService, DocumentBuilder
@@ -16,7 +18,7 @@ class ProtocolComposer:
         self._llm_service = llm_service
         self._document_builder = document_builder
 
-    async def compose(self, meeting: Meeting) -> BuiltDocument:
+    async def compose(self, meeting: Meeting) -> Optional[BuiltDocument]:
         transcriptions = await self._stt_service.transcript(
             audio_file=meeting.audio_record,
             file_extension=meeting.audio_format

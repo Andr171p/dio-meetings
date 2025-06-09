@@ -50,14 +50,6 @@ class FileRepository(ABC):
     async def delete_file(self, file_name: str, bucket_name: str) -> str: pass
 
 
-class MessageBroker(Protocol):
-    async def publish(
-            self,
-            messages: Union[BaseModel, list[BaseModel], dict],
-            queue: str
-    ) -> None: pass
-
-
 class TaskRepository(ABC):
     @abstractmethod
     async def create(self, task: TaskCreate) -> CreatedTask: pass

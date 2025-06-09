@@ -5,14 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from faststream.redis import RedisBroker
 
 from .core.use_cases import ProtocolComposer
-from .core.base import (
-    STTService,
-    LLMService,
-    DocumentBuilder,
-    FileRepository,
-    TaskRepository,
-    MessageBroker
-)
+from .core.base import STTService, LLMService, DocumentBuilder, FileRepository, TaskRepository
 
 from .infrastructure.documents.word import DOCXBuilder
 from .infrastructure.llms.yandex_gpt import YandexGPTService
@@ -28,8 +21,8 @@ class AppProvider(Provider):
     config = from_context(provides=Settings, scope=Scope.APP)
 
     @provide(scope=Scope.APP)
-    def get_message_broker(self, config: Settings) -> MessageBroker:
-        return RedisBroker(...)
+    def get_broker(self, config: Settings) -> RedisBroker:
+        return RedisBroker(config.redis.redis_url)
 
     @provide(scope=Scope.APP)
     def get_session_maker(self, config: Settings) -> async_sessionmaker[AsyncSession]:

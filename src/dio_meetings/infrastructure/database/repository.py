@@ -19,7 +19,7 @@ class SQLTaskRepository(TaskRepository):
             stmt = (
                 insert(TaskOrm)
                 .values(**task.model_dump())
-                .returning(TaskOrm)
+                .returning(TaskOrm.task_id)
             )
             result = await session.execute(stmt)
             await session.commit()

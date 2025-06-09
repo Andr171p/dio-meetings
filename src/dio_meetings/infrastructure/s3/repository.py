@@ -65,7 +65,8 @@ class S3Repository(FileRepository):
         try:
             async with self._get_client() as client:
                 response = await client.get_object(Bucket=bucket_name, Key=file_name)
-            return response["Body"]
+            body = response["Body"]
+            return await body.read()
         except Exception as e:
             self.logger.error(f"Error while receiving file: {e}")
             raise DownloadError(f"Error while receiving file: {e}") from e

@@ -2,7 +2,7 @@ from typing import Optional
 
 from uuid import UUID
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, ConfigDict
 
 from ..constants import SUPPORTED_AUDIO_FORMATS, TASK_STATUS
 
@@ -24,3 +24,5 @@ class Task(BaseModel):
     meeting_key: str
     status: TASK_STATUS  # Статус выполнения задачи
     protocol_key: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)

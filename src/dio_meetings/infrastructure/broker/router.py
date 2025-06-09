@@ -1,5 +1,5 @@
 from faststream import Logger
-from faststream.rabbit import RabbitRouter
+from faststream.redis import RedisRouter
 
 from dishka.integrations.base import FromDishka
 
@@ -9,7 +9,7 @@ from ...core.base import FileRepository, TaskRepository
 from ...utils import get_file_extension
 
 
-meetings_router = RabbitRouter()
+meetings_router = RedisRouter()
 
 
 @meetings_router.subscriber("tasks")
@@ -33,13 +33,13 @@ async def compose_protocol(
     built_document = await protocol_composer.compose(meeting)
     logger.info("Finished composing meeting protocol")
     await file_repository.upload_file(
-        file=built_document.file_buffer,
+        file_data=built_document.file_data,
         file_name=built_document.document_name,
         bucket_name="protocols"
     )
     await task_repository.update(
         task_id=task.task_id,
-        status="DONE",
+        status="DONE" if built_document else "ERROR",
         protocol_key=f"{built_document.document_id}.docx"
     )
     logger.info("Successfully saved meeting protocol")
