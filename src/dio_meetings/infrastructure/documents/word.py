@@ -34,7 +34,10 @@ class DOCXBuilder(DocumentBuilder):
         file_name = f"{document_id}.docx"
         self.document.save(file_name)
         file_buffer.seek(0)
-        return BuiltDocument(document_id=document_id, file_buffer=file_buffer)
+        return BuiltDocument.from_bytes_io(
+            document_name=file_name,
+            file_buffer=file_buffer
+        )
 
     def _process_text(self, text: str) -> None:
         html = markdown.markdown(text, extensions=["tables"])

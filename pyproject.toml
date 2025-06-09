@@ -7,6 +7,8 @@ dependencies = [
     "aioboto3>=14.3.0",
     "aiofiles>=24.1.0",
     "aiohttp>=3.12.4",
+    "alembic>=1.16.1",
+    "asyncpg>=0.30.0",
     "bs4>=0.0.2",
     "dishka>=1.6.0",
     "fastapi[all]>=0.115.12",
@@ -21,4 +23,5 @@ dependencies = [
     "python-docx>=1.1.2",
     "soundfile>=0.13.1",
     "sqlalchemy>=2.0.41",
+    "uvicorn>=0.34.2",
 ]

@@ -48,13 +48,13 @@ class Transcription(BaseModel):
 
 
 class BuiltDocument(BaseModel):
-    document_id: UUID
+    document_name: str
     file_data: bytes
 
     @classmethod
-    def from_bytes_io(cls, document_id: UUID, file_buffer: io.BytesIO) -> "BuiltDocument":
+    def from_bytes_io(cls, document_name: str, file_buffer: io.BytesIO) -> "BuiltDocument":
         return cls(
-            document_id=document_id,
+            document_name=document_name,
             file_data=file_buffer.getvalue()
         )
 
@@ -66,7 +66,7 @@ class UploadedMeeting(BaseModel):
 
 class TaskCreate(BaseModel):
     meeting_key: str
-    status: TASK_STATUS
+    status: TASK_STATUS = "RUNNING"
 
 
 class CreatedTask(Task):

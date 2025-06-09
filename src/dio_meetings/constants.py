@@ -9,6 +9,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_PATH = BASE_DIR / ".env"
 
 
+PG_DRIVER: Literal["asyncpg"] = "asyncpg"
+
+
 SALUTE_SPEECH_SCOPE = Literal[
     "SALUTE_SPEECH_PERS",
     "SALUTE_SPEECH_CORP"

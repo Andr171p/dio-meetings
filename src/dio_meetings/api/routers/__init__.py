@@ -4,6 +4,6 @@ __all__ = (
     "protocols_router"
 )
 
-from tasks import tasks_router
+from .tasks import tasks_router
 from .meetings import meetings_router
 from .protocols import protocols_router
