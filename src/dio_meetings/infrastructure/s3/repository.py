@@ -7,8 +7,8 @@ import logging
 from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 
-from .exceptions import S3Error
 from ...core.base import FileRepository
+from ...core.exceptions import S3Error, UploadError, DownloadError
 
 
 SERVICE_NAME = "s3"
@@ -25,7 +25,7 @@ class S3Repository(FileRepository):
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config = {
             "endpoint_url": url,
-            "aws_access_key": access_key,
+            "aws_access_key_id": access_key,
             "aws_secret_access_key": secret_key,
             "use_ssl": secure
         }
@@ -59,7 +59,7 @@ class S3Repository(FileRepository):
                     Body=file_data
                 )
         except Exception as e:
-            raise S3Error(f"Error while uploading file: {e}") from e
+            raise UploadError(f"Error while uploading file: {e}") from e
 
     async def download_file(self, file_name: str, bucket_name: str) -> bytes:
         try:
@@ -68,7 +68,7 @@ class S3Repository(FileRepository):
             return response["Body"]
         except Exception as e:
             self.logger.error(f"Error while receiving file: {e}")
-            raise S3Error(f"Error while receiving file: {e}") from e
+            raise DownloadError(f"Error while receiving file: {e}") from e
 
     async def delete_file(self, file_name: str, bucket_name: str) -> str:
         try:

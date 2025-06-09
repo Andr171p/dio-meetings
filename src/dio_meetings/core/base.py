@@ -38,7 +38,7 @@ class FileRepository(ABC):
     @abstractmethod
     async def upload_file(
             self,
-            file: bytes,
+            file_data: bytes,
             file_name: str,
             bucket_name: str
     ) -> None: pass
