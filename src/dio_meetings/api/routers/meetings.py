@@ -9,7 +9,7 @@ from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
 from ...core.base import MeetingRepository
 from ...core.services import MeetingService
-from ...core.dto import MeetingUpload, CreatedMeeting
+from ...core.dto import MeetingUpload, CreatedMeeting, CreatedResult
 
 
 meetings_router = APIRouter(
@@ -103,3 +103,18 @@ async def get_meetings_list(meeting_repository: FromDishka[MeetingRepository]) -
     if not meetings:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No meetings yet")
     return meetings
+
+
+@meetings_router.get(
+    path="/{meeting_id}/result",
+    status_code=status.HTTP_200_OK,
+    response_model=CreatedResult
+)
+async def get_meeting_result(
+        meeting_id: UUID,
+        meeting_repository: FromDishka[MeetingRepository]
+) -> CreatedResult:
+    result = await meeting_repository.get_result(meeting_id)
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting result not found")
+    return result

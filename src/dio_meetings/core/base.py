@@ -84,6 +84,9 @@ class MeetingRepository(ABC):
     @abstractmethod
     async def delete(self, meeting_id: UUID) -> bool: pass
 
+    @abstractmethod
+    async def get_result(self, meeting_id: UUID) -> Optional[CreatedResult]: pass
+
 
 class ResultRepository(ABC):
     @abstractmethod

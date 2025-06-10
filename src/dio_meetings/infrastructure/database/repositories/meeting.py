@@ -7,11 +7,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import insert, select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import MeetingOrm
+from ..models import MeetingOrm, TaskOrm
 
 from src.dio_meetings.core.domain import Meeting
-from src.dio_meetings.core.dto import CreatedMeeting
 from src.dio_meetings.core.base import MeetingRepository
+from src.dio_meetings.core.dto import CreatedMeeting, CreatedResult
 from src.dio_meetings.core.exceptions import CreateDataError, ReadDataError, DeleteDataError
 
 
@@ -77,3 +77,20 @@ class SQLMeetingRepository(MeetingRepository):
             await self.session.rollback()
             self.logger.error(f"Error while deleting meeting: {e}")
             raise DeleteDataError(f"Error while deleting meeting: {e}") from e
+
+    async def get_result(self, meeting_id: UUID) -> Optional[CreatedResult]:
+        try:
+            stmt = (
+                select(TaskOrm.result)
+                .where(
+                    TaskOrm.meeting_id == meeting_id,
+                    TaskOrm.status == "DONE"
+                )
+            )
+            result = await self.session.execute(stmt)
+            created_result = result.scalar_one_or_none()
+            return CreatedResult.model_validate(created_result) if created_result else None
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            self.logger.error(f"Error while receiving result: {e}")
+            raise ReadDataError(f"Error while receiving result: {e}") from e
