@@ -17,8 +17,8 @@
    Headers: ```multipart/form-data```</br>
 
    Parameters:
-    - name: "string" - Тема/Название встречи
-    - speakers_count: integer - количество активных спикеров
+    - <b>name</b>: "string" - Тема/Название встречи
+    - <b>speakers_count</b>: integer - количество активных спикеров
    
    Data: bytes</br></br>
 
@@ -51,18 +51,26 @@
    Метод для загрузки аудио записи встреч.</br></br>
    
    <b>Request Body</b>:</br>
-   Parameters: meeting_key: "string"</br></br>
-
+   Parameters: 
+     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8" - Строка в формате UUID.</br>
+   
    <b>Response Body</b>:</br>
-   Code: 200</br>
-   Header: ```"Content-Disposition": f"attachment; filename={meeting_key}"```</br>
-   Data: bytes
+    * <b>Code</b>: 200</br>
+       - Media-type: `"audio/mpeg"`</br>
+       - Headers: ```"Content-Disposition": f"attachment; filename={}"```</br>
+       - Data: bytes
+    * <b>Code</b>: 404</br>
+       - json:
+       ```json
+       {"detail": "Meeting not found"}
+       ```
 
-* ### DELETE `/{meetings_key}`
-  Метод для удаления аудио записи совещания.</br></br>
+* ### DELETE `/{meetings_id}`
+  Метод для удаления совещания.</br></br>
   
   <b>Request Body</b>:</br>
-  Parameters: meeting_key: "string"</br></br>
+  Parameters: 
+    - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"</br></br>
   
   <b>Response Body</b>:</br>
   Code: 204</br>
