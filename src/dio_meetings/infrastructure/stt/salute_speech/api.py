@@ -130,7 +130,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
     async def async_recognize(
             self,
             request_file_id: UUID,
-            file_extension: str,
+            file_format: str,
             enable_speaker_diarization: bool = ENABLE_SPEAKERS_DIARIZATION,
             speakers_count: int = DEFAULT_SPEAKERS_COUNT,
             language: SUPPORTED_LANGUAGE = "ru-RU",
@@ -145,7 +145,7 @@ class SaluteSpeechAPI(SberDevicesAPI):
             "X-Request-ID": str(uuid4())  # Добавляем обязательный заголовок
         }
 
-        audio_encoding = get_audio_encoding(file_extension)
+        audio_encoding = get_audio_encoding(file_format)
         payload = {
             "options": {
                 "model": self._model,

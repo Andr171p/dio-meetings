@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
+async def lifespan(_: FastAPI) -> AsyncGenerator[None, Any]:
     faststream_app = await create_faststream_app()
     await faststream_app.broker.start()
     logger.info("Broker started")

@@ -1,19 +1,18 @@
 from typing import Union
 
 import io
-from uuid import uuid4
 
 import markdown
 
 from bs4 import BeautifulSoup
 from bs4.element import PageElement, NavigableString, Tag
 
-from docx import Document
 from docx.shared import Pt
+from docx import Document as WordDocument
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
-from src.dio_meetings.core.base import DocumentBuilder
-from src.dio_meetings.core.dto import BuiltDocument
+from ...core.dto import Document
+from ...core.base import DocumentFactory
 
 
 PARAGRAPH_LINE = 50
@@ -23,23 +22,21 @@ TABLE_STYLE = "Table Grid"
 SoupElement = Union[BeautifulSoup, PageElement, Tag, NavigableString]
 
 
-class DOCXBuilder(DocumentBuilder):
+class MicrosoftWordFactory(DocumentFactory):
     def __init__(self) -> None:
-        self.document = Document()
+        self.document = WordDocument()
 
-    def build(self, text: str) -> BuiltDocument:
-        self._process_text(text)
-        document_id = uuid4()
+    def create_document(self, text: str) -> Document:
+        self._build_document(text)
         file_buffer = io.BytesIO()
-        file_name = f"{document_id}.docx"
-        self.document.save(file_name)
+        self.document.save("")
         file_buffer.seek(0)
-        return BuiltDocument.from_bytes_io(
-            document_name=file_name,
-            file_buffer=file_buffer
+        return Document.from_bytes_io(
+            file_buffer=file_buffer,
+            file_format="docx"
         )
 
-    def _process_text(self, text: str) -> None:
+    def _build_document(self, text: str) -> None:
         html = markdown.markdown(text, extensions=["tables"])
         soup = BeautifulSoup(html, "html.parser")
         for element in soup.find_all(recursive=False):

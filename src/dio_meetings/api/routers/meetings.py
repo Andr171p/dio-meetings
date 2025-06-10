@@ -1,17 +1,14 @@
-from uuid import uuid4
+from typing import Annotated
 
-from fastapi import APIRouter, status, HTTPException
+from uuid import UUID
+
+from fastapi import APIRouter, status, HTTPException, UploadFile, File, Form
 from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from ..params import AudioFile
-
-from ...core.base import FileRepository
-from ...core.dto import UploadedMeeting
-from ...core.exceptions import DownloadError
-from ...utils import get_file_extension
-from ...constants import MEETINGS_BUCKET_NAME
+from ...core.services import MeetingService
+from ...core.dto import MeetingUpload, CreatedMeeting
 
 
 meetings_router = APIRouter(
@@ -24,55 +21,57 @@ meetings_router = APIRouter(
 @meetings_router.post(
     path="/upload", 
     status_code=status.HTTP_201_CREATED,
-    response_model=UploadedMeeting
+    response_model=CreatedMeeting
 )
 async def upload_meeting(
-        audio_file: AudioFile,
-        file_repository: FromDishka[FileRepository]
-) -> UploadedMeeting:
-    content = await audio_file.read()
-    meeting_id = uuid4()
-    file_format = get_file_extension(audio_file.filename)
-    meeting_key = f"{meeting_id}.{file_format}"
-    await file_repository.upload_file(
-        file_data=content,
-        file_name=meeting_key,
-        bucket_name=MEETINGS_BUCKET_NAME
+        audio_file: Annotated[UploadFile, File(..., description="Аудио запись встречи/совещания")],
+        name: Annotated[str, Form(..., description="Тема/название совещания")],
+        speakers_count: Annotated[int, Form(..., description="Количество участников")],
+        meeting_service: FromDishka[MeetingService]
+) -> CreatedMeeting:
+    file_data = await audio_file.read()
+    meeting_upload = MeetingUpload(
+        name=name,
+        file_name=audio_file.filename,
+        speakers_count=speakers_count,
+        audio_bytes=file_data
     )
-    return UploadedMeeting(meeting_key=meeting_key)
+    created_meeting = await meeting_service.upload(meeting_upload)
+    if not created_meeting:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Error while uploading meeting"
+        )
+    return created_meeting
 
 
 @meetings_router.get(
-    path="/{meeting_key}/download",
+    path="/{meeting_id}/download",
     status_code=status.HTTP_200_OK
 )
 async def download_meeting(
-        meeting_key: str,
-        file_repository: FromDishka[FileRepository]
+        meeting_id: UUID,
+        meeting_service: FromDishka[MeetingService]
 ) -> Response:
-    try:
-        file_data = await file_repository.download_file(
-            file_name=meeting_key,
-            bucket_name=MEETINGS_BUCKET_NAME
-        )
-    except DownloadError:
+    downloaded_meeting = await meeting_service.download(meeting_id)
+    if not downloaded_meeting:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
     return Response(
-        content=file_data,
+        content=downloaded_meeting.file_data,
         media_type="audio/mpeg",
-        headers={"Content-Disposition": "inline; filename={meeting_key}"}
+        headers={"Content-Disposition": f"inline; filename={downloaded_meeting.file_name}"}
     )
 
 
 @meetings_router.delete(
-    path="/{meeting_key}",
+    path="/{meeting_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_meeting(
-        meeting_key: str,
-        file_repository: FromDishka[FileRepository]
-) -> None:
-    await file_repository.delete_file(
-        file_name=meeting_key,
-        bucket_name=MEETINGS_BUCKET_NAME
-    )
+        meeting_id: UUID,
+        meeting_service: FromDishka[MeetingService]
+) -> Response:
+    is_deleted = await meeting_service.delete(meeting_id)
+    if not is_deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

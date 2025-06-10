@@ -2,14 +2,12 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from faststream.redis import RedisBroker
-
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
-from ...core.base import TaskRepository
-from ...core.dto import CreatedTask, TaskCreate
+from ...core.services import TaskService
+from ...core.dto import CreatedTask
 
-from ..params import TaskCreateSchema
+from ..schemas import TaskCreateSchema
 
 
 tasks_router = APIRouter(
@@ -25,19 +23,15 @@ tasks_router = APIRouter(
     response_model=CreatedTask
 )
 async def create_task(
-        task: TaskCreateSchema,
-        task_repository: FromDishka[TaskRepository],
-        broker: FromDishka[RedisBroker]
+        task_create: TaskCreateSchema,
+        task_service: FromDishka[TaskService]
 ) -> CreatedTask:
-    task = TaskCreate(meeting_key=task.meeting_key, status="RUNNING")
-    created_task = await task_repository.create(task)
+    created_task = await task_service.create(task_create.meeting_id)
     if not created_task:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error while creating task"
         )
-    created_task.status = "NEW"
-    await broker.publish(created_task, channel="tasks")
     return created_task
 
 
@@ -46,8 +40,8 @@ async def create_task(
     status_code=status.HTTP_200_OK,
     response_model=CreatedTask
 )
-async def get_task(task_id: UUID, task_repository: FromDishka[TaskRepository]) -> CreatedTask:
-    task = await task_repository.read(task_id)
+async def get_task_status(task_id: UUID, task_service: FromDishka[TaskService]) -> CreatedTask:
+    task = await task_service.get_status(task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
     return task

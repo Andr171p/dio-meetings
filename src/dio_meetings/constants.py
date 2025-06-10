@@ -18,6 +18,16 @@ SALUTE_SPEECH_SCOPE = Literal[
     "SALUTE_SPEECH_CORP"
 ]
 
+# Эмоции распознанные при транскрибации
+EMOTION = Literal[
+    "positive",
+    "neutral",
+    "negative"
+]
+
+# Количество спикеров по умолчанию
+SPEAKERS_COUNT = 6
+
 BUCKET_NAME = "meeting-protocols"
 
 
@@ -36,5 +46,5 @@ TASK_STATUS = Literal[
 ]
 
 # Имена s3 бакетов для хранения объектов:
-MEETINGS_BUCKET_NAME = "meetings"
-PROTOCOLS_BUCKET_NAME = "protocols"
+MEETING_BUCKET_NAME = "meetings"
+RESULT_BUCKET_NAME = "results"

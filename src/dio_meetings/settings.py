@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from pydantic_settings import BaseSettings
 
-from .constants import ENV_PATH, SALUTE_SPEECH_SCOPE, PG_DRIVER
+from src.dio_meetings.constants import ENV_PATH, SALUTE_SPEECH_SCOPE, PG_DRIVER
 
 
 load_dotenv(ENV_PATH)
@@ -52,3 +52,6 @@ class Settings(BaseSettings):
     minio: MiniOSettings = MiniOSettings()
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
+
+
+print(MiniOSettings())

@@ -1,28 +1,36 @@
 from typing import Optional
 
 from uuid import UUID
+from datetime import datetime
 
-from pydantic import BaseModel, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict
 
-from ..constants import SUPPORTED_AUDIO_FORMATS, TASK_STATUS
+from ..constants import TASK_STATUS
 
 
 class Meeting(BaseModel):
-    meeting_key: str  # Уникальный ID ключ совещания в формате {uuid}.{audio_format}
-    audio_record: bytes  # Аудио запись встречи / совещания
-    audio_format: str  # Формат аудио из возможных поддерживаемых
+    meeting_id: UUID  # Уникальный ID встречи
+    name: str  # Название встречи
+    audio_format: str  # Формат аудио файла
+    duration: float  # Продолжительность в секундах
+    speakers_count: int  # Количество участников
+    file_name: str  # Ключ к файлу из s3 хранилища, в формате [uuid].[audio_format]
+    date: datetime  # Дата встречи
 
-    @field_validator("audio_format")
-    def validate_audio_format(cls, audio_format: str) -> str:
-        if audio_format not in SUPPORTED_AUDIO_FORMATS:
-            raise ValueError("Unsupported audio format")
-        return audio_format
+    model_config = ConfigDict(from_attributes=True)
 
 
 class Task(BaseModel):
     task_id: UUID
-    meeting_key: str
+    meeting_id: UUID
     status: TASK_STATUS  # Статус выполнения задачи
-    protocol_key: Optional[str] = None
+    result_id: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class Result(BaseModel):
+    result_id: UUID
+    file_name: str
 
     model_config = ConfigDict(from_attributes=True)

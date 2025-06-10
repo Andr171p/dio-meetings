@@ -10,3 +10,23 @@ class UploadError(S3Error):
 
 class DownloadError(S3Error):
     pass
+
+
+class RepositoryError(Exception):
+    pass
+
+
+class ReadDataError(RepositoryError):
+    pass
+
+
+class CreateDataError(RepositoryError):
+    pass
+
+
+class UpdateDataError(RepositoryError):
+    pass
+
+
+class DeleteDataError(RepositoryError):
+    pass

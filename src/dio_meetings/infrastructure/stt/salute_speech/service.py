@@ -1,7 +1,4 @@
-from typing import Union
-
 import asyncio
-import io
 
 from .api import SaluteSpeechAPI
 from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
@@ -22,13 +19,17 @@ class SaluteSpeechService(STTService):
 
     async def transcript(
             self,
-            audio_file: Union[io.BytesIO, bytes],
-            file_format: str
+            audio_file: bytes,
+            audio_format: str,
+            speakers_count: int
     ) -> list[Transcription]:
-        request_file_id = await self._salute_speech_api.upload_file(audio_file, file_format)
+        request_file_id = await self._salute_speech_api.upload_file(
+            audio_file=audio_file,
+            file_format=audio_format
+        )
         task_result = await self._salute_speech_api.async_recognize(
             request_file_id=request_file_id,
-            file_extension=file_format
+            file_format=audio_format
         )
         while task_result.status != "DONE":
             await asyncio.sleep(self._async_timeout)

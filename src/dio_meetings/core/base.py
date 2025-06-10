@@ -1,17 +1,20 @@
-from typing import Protocol, Optional, Union
+from typing import Optional, Protocol
 
 from abc import ABC, abstractmethod
 from uuid import UUID
 
 from pydantic import BaseModel
 
+from .domain import Meeting, Result
 from .dto import (
     BaseMessage,
     AIMessage,
     Transcription,
-    BuiltDocument,
+    Document,
     TaskCreate,
-    CreatedTask
+    CreatedTask,
+    CreatedMeeting,
+    CreatedResult
 )
 
 
@@ -20,7 +23,8 @@ class STTService(ABC):
     async def transcript(
             self,
             audio_file: bytes,
-            file_extension: str
+            audio_format: str,
+            speakers_count: int
     ) -> list[Transcription]: pass
 
 
@@ -29,12 +33,12 @@ class LLMService(ABC):
     async def generate(self, messages: list[BaseMessage]) -> AIMessage: pass
 
 
-class DocumentBuilder(ABC):
+class DocumentFactory(ABC):
     @abstractmethod
-    def build(self, text: str) -> BuiltDocument: pass
+    def create_document(self, text: str) -> Document: pass
 
 
-class FileRepository(ABC):
+class S3Repository(ABC):
     @abstractmethod
     async def upload_file(
             self,
@@ -44,7 +48,7 @@ class FileRepository(ABC):
     ) -> None: pass
 
     @abstractmethod
-    async def download_file(self, file_name: str, bucket_name: str) -> ...: pass
+    async def download_file(self, file_name: str, bucket_name: str) -> bytes: pass
 
     @abstractmethod
     async def delete_file(self, file_name: str, bucket_name: str) -> str: pass
@@ -62,3 +66,39 @@ class TaskRepository(ABC):
 
     @abstractmethod
     async def delete(self, task_id: UUID) -> bool: pass
+
+
+class MeetingRepository(ABC):
+    @abstractmethod
+    async def create(self, meeting: Meeting) -> CreatedMeeting: pass
+
+    @abstractmethod
+    async def read(self, meeting_id: UUID) -> Optional[CreatedMeeting]: pass
+
+    @abstractmethod
+    async def read_all(self) -> list[CreatedMeeting]: pass
+
+    # @abstractmethod
+    # async def paginate(self, page: int, limit: int) -> list[CreatedMeeting]: pass
+
+    @abstractmethod
+    async def delete(self, meeting_id: UUID) -> bool: pass
+
+
+class ResultRepository(ABC):
+    @abstractmethod
+    async def create(self, result: Result) -> CreatedResult: pass
+
+    @abstractmethod
+    async def read(self, result_id: UUID) -> Optional[CreatedResult]: pass
+
+    @abstractmethod
+    async def delete(self, result_id: UUID) -> bool: pass
+
+
+class BaseBroker(Protocol):
+    async def publish(
+            self,
+            messages: BaseModel | list[BaseModel] | dict,
+            **kwargs
+    ) -> None: pass

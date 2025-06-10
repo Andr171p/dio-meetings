@@ -7,14 +7,14 @@ import logging
 from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 
-from ...core.base import FileRepository
+from ...core.base import S3Repository
 from ...core.exceptions import S3Error, UploadError, DownloadError
 
 
 SERVICE_NAME = "s3"
 
 
-class S3Repository(FileRepository):
+class MinioS3Repository(S3Repository):
     def __init__(
             self,
             url: str,
@@ -27,13 +27,15 @@ class S3Repository(FileRepository):
             "endpoint_url": url,
             "aws_access_key_id": access_key,
             "aws_secret_access_key": secret_key,
-            "use_ssl": secure
+            "use_ssl": secure,
+            "region_name": "us-east-1",
+            "service_name": "s3"
         }
         self.session = get_session()
 
     @asynccontextmanager
     async def _get_client(self) -> AsyncGenerator[AioBaseClient, Any]:
-        async with self.session.create_client(SERVICE_NAME, **self.config) as client:
+        async with self.session.create_client(**self.config) as client:
             yield client
 
     async def create_bucket(self, bucket_name: str) -> None:
@@ -49,7 +51,7 @@ class S3Repository(FileRepository):
             self,
             file_data: bytes,
             file_name: str,
-            bucket_name: str,
+            bucket_name: str
     ) -> None:
         try:
             async with self._get_client() as client:
@@ -65,8 +67,8 @@ class S3Repository(FileRepository):
         try:
             async with self._get_client() as client:
                 response = await client.get_object(Bucket=bucket_name, Key=file_name)
-            body = response["Body"]
-            return await body.read()
+                body = response["Body"]
+                return await body.read()
         except Exception as e:
             self.logger.error(f"Error while receiving file: {e}")
             raise DownloadError(f"Error while receiving file: {e}") from e
