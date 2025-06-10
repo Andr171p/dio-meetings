@@ -13,7 +13,13 @@
    Метод для загрузки аудио записи встречи.</br></br>
 
    <b>Request body</b>:</br>
+  
    Headers: ```multipart/form-data```</br>
+
+   Parameters:
+    - name: "string" - Тема/Название встречи
+    - speakers_count: integer - количество активных спикеров
+   
    Data: bytes</br></br>
 
    <b>Response body</b>:</br>
@@ -22,12 +28,26 @@
    JSON:
    ```json
    {
-     "meeting_key": "string",
-     "created_at": "2025-06-09T04:47:31.863Z"
+     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+     "name": "Телефонный разговор",
+     "audio_format": "mp3",
+     "duration": 618.6,
+     "speakers_count": 2,
+     "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
+     "date": "2025-06-10T16:03:25.923236",
+     "created_at": "2025-06-10T11:03:28.263849"
    }
    ```
+   * <b>meeting_id</b> - Уникальный ID совещания в формате uuid (генерируется при создании ресурса).
+   * <b>name</b> - Название совещания.
+   * <b>audio_format</b> - Формат загруженного аудио файла.
+   * <b>duration</b> - Продолжительность аудио записи в секундах.
+   * <b>speakers_count</b> - Количество говорящих на записи.
+   * <b>file_name</b> - Имя файла в S3 в формате {meeting_id}.{audio_format}.
+   * <b>date</b> - Дата проведения совещания.
+   * <b>created_at</b> - Дата создания ресурса.
 
- * ### GET `/{meeting_key}/download`
+ * ### GET `/{meeting_id}/download`
    Метод для загрузки аудио записи встреч.</br></br>
    
    <b>Request Body</b>:</br>
