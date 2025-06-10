@@ -7,6 +7,7 @@ from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka
 
+from ...core.base import MeetingRepository
 from ...core.services import MeetingService
 from ...core.dto import MeetingUpload, CreatedMeeting
 
@@ -75,3 +76,30 @@ async def delete_meeting(
     if not is_deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@meetings_router.get(
+    path="/{meeting_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=CreatedMeeting
+)
+async def get_meeting(
+        meeting_id: UUID,
+        meeting_repository: FromDishka[MeetingRepository]
+) -> CreatedMeeting:
+    meeting = await meeting_repository.read(meeting_id)
+    if not meeting:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meeting not found")
+    return meeting
+
+
+@meetings_router.get(
+    path="/",
+    status_code=status.HTTP_200_OK,
+    response_model=list[CreatedMeeting]
+)
+async def get_meetings_list(meeting_repository: FromDishka[MeetingRepository]) -> list[CreatedMeeting]:
+    meetings = await meeting_repository.read_all()
+    if not meetings:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No meetings yet")
+    return meetings
