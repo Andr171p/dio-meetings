@@ -73,7 +73,12 @@
     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"</br></br>
   
   <b>Response Body</b>:</br>
-  Code: 204</br>
+  * <b>Code</b>: 204 - Успешное удаление</br>
+  * <b>Code</b>: 404
+    -  json:
+    ```json
+    {"detail":  "Meeting not found"}
+    ```
 
 
 ## Tasks
