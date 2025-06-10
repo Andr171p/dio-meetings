@@ -60,7 +60,7 @@
        - Headers: ```"Content-Disposition": f"attachment; filename={}"```</br>
        - Data: bytes
     * <b>Code</b>: 404</br>
-       - json:
+       - JSON:
        ```json
        {"detail": "Meeting not found"}
        ```
@@ -73,13 +73,40 @@
     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"</br></br>
   
   <b>Response Body</b>:</br>
-  * <b>Code</b>: 204 - Успешное удаление</br>
-  * <b>Code</b>: 404
-    -  json:
+  * <b>Code 204 No content</b> - Успешное удаление</br>
+  * <b>Code 404 Not found</b>
+    -  JSON:
     ```json
     {"detail":  "Meeting not found"}
     ```
 
+* ### GET `/{meeting_id}`
+  Метод для получения метаданных совещания.
+  
+  <b>Request Body</b>:</br>
+  Parameters:
+     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8" - Уникальный ID совещания получаемый при создании ресурса.
+  
+  <b>Response body</b>:</br>
+  * <b>Code 200 OK</b>
+     - JSON
+     ```json
+     {
+       "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+       "name": "Телефонный разговор",
+       "audio_format": "mp3",
+       "duration": 618.6,
+       "speakers_count": 2,
+       "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
+       "date": "2025-06-10T16:03:25.923236",
+       "created_at": "2025-06-10T11:03:28.263849"
+     }
+     ```
+  * <b>Code 404 Not found</b>
+    - JSON
+    ```json
+    {"detail": "Meeting not found"}
+    ```
 
 ## Tasks
 
