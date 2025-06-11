@@ -126,9 +126,6 @@ class TaskService:
             file_name=result.file_name,
             bucket_name=RESULT_BUCKET_NAME
         )
-        print(file_data)
-        print(75 * "=")
-        print(result.file_name)
         return DownloadedFile(file_data=file_data, file_name=result.file_name)
 
 
@@ -146,7 +143,6 @@ class MeetingService:
         duration = get_audio_duration(meeting_upload.audio_bytes, audio_format)
         meeting_id = uuid4()
         file_name = f"{meeting_id}.{audio_format}"
-        print(file_name)
         meeting = Meeting(
             meeting_id=meeting_id,
             name=meeting_upload.name,
