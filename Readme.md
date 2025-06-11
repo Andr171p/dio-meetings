@@ -25,7 +25,7 @@
    <b>Response body</b>:</br>
     - <b>Code 201 Created</br>
    Header: ```application/json```</br>
-   JSON:
+   JSON
    ```json
    {
      "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
@@ -79,7 +79,7 @@
   <b>Response Body</b>:</br>
   * <b>Code 204 No content</b> - Успешное удаление</br>
   * <b>Code 404 Not found</b>
-    JSON:
+    JSON
     ```json
     {"detail":  "Meeting not found"}
     ```
@@ -152,7 +152,7 @@
 
    <b>Request Body</b>:</br>
    Headers: ```application/json```</br>
-   JSON:
+   JSON
    ```json
    {
      "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"
@@ -162,7 +162,7 @@
    <b>Response Body</b>:</br>
     - <b>Code 201 Created</b></br>
    Header: ```application/json```</br>
-   JSON:
+   JSON
    ```json
    {
       "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
@@ -195,7 +195,7 @@
    <b>Response Body</b>:</br>
      - <b>Code 200 OK</b></br>
    Header: ```application/json```
-   JSON:
+   JSON
    ```json
    {
      "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
