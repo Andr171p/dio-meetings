@@ -49,19 +49,15 @@ class SummarizationService:
             speakers_count: int,
             prompt_template: str
     ) -> Optional[Document]:
-        '''
         transcriptions = await self._stt_service.transcript(
             audio_file=audio_file,
             audio_format=audio_format,
             speakers_count=speakers_count
         )
         formated_transcriptions = self._format_transcriptions(transcriptions)
-        '''
-        formated_transcriptions = "Здесь пока пусто это тест"
         messages = [SystemMessage(text=prompt_template), UserMessage(text=formated_transcriptions)]
         ai_message = await self._llm_service.generate(messages)
         document = self._document_factory.create_document(ai_message.text)
-        print(document.file_data)
         return document
 
     @staticmethod
