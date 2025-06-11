@@ -23,7 +23,7 @@
    Data: bytes</br></br>
 
    <b>Response body</b>:</br>
-   Code: 201</br>
+    - <b>Code 201 Created</br>
    Header: ```application/json```</br>
    JSON:
    ```json
@@ -55,11 +55,11 @@
      - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8" - Строка в формате UUID.</br>
    
    <b>Response Body</b>:</br>
-    * <b>Code</b>: 200</br>
+    * <b>Code 200 OK</b></br>
        - Media-type: `"audio/mpeg"`</br>
        - Headers: ```"Content-Disposition": f"attachment; filename={}"```</br>
        - Data: bytes
-    * <b>Code</b>: 404</br>
+    * <b>Code 404 Not found</b></br>
        - JSON:
        ```json
        {"detail": "Meeting not found"}
@@ -107,57 +107,125 @@
     ```json
     {"detail": "Meeting not found"}
     ```
+    
+ * ### GET `/`
+ 
+    Метод для получения списка всех метаданных совещаний.
+    
+    <b>Response Body</b>:</br>
+     -  <b>Code 200 OK</b></br>
+     JSON</br>
+     ```json
+     [
+       {
+         "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+         "name": "Телефонный разговор",
+         "audio_format": "mp3",
+         "duration": 618.6,
+         "speakers_count": 2,
+         "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
+         "date": "2025-06-10T16:03:25.923236",
+         "created_at": "2025-06-10T11:03:28.263849"
+       }
+     ]
+     ```
+      - <b>Code 404 Not found</b></br>
+      JSON</br>
+      ```json
+      {"detail":  "No meetings yet"}
+      ```
+       
 
 ## Tasks
 
-Ресурс для работы с заданиями на генерацию протокола встречи.
+Ресурс для создания и работы с задачами на генерацию протоколов совещаний.
 
 ### Базовый url `/api/v1/tasks`
 
-### POST `/`
+ * ### POST `/`
 
-   Метод для создания задачи.</br></br>
+   Метод для создания задачи на генерацию протокола совещания.</br></br>
 
    <b>Request Body</b>:</br>
    Headers: ```application/json```</br>
    JSON:
    ```json
    {
-     "meeting_key": "string"
+     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"
    }
    ```
     
    <b>Response Body</b>:</br>
-   Code: 201</br>
+    - <b>Code 201 Created</b></br>
    Header: ```application/json```</br>
    JSON:
    ```json
    {
       "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "meeting_key": "string",
+      "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
       "status": "NEW",
-      "protocol_key": "string",
-      "created_at": "2025-06-09T05:16:38.409Z"
+      "result_id": null,
+      "created_at": "2025-06-09T05:16:38.409Z",
+      "updated_at": "2025-06-10T11:07:35.961789"
    }
    ```
+   * <b>task_id</b> - Уникальный ID задачи, создаётся при создании ресурса.
+   * <b>meeting_id</b> - ID совещания для которого выполняется задача.
+   * <b>status</b> - Статус выполнения задачи:
+      - <b>NEW</b> - Новая задача. Этот статус можно получить только при создании ресурса.
+      - <b>RUNNING</b> - Задача в процессе выполнения.
+      - <b>DONE</b> - Задача успешно выполнена. В теле ответа в поле result_id будет ID протокола совещания.
+      - <b>ERROR</b> - Задача завершилась с ошибкой.
+   * <b>result_id</b> - ID составленного протокола, приходит только когда status DONE.
+   * <b>created_at</b> - Дата и время создания задачи.
+   * <b>updated_at</b> - Дата обновления статуса задачи.
 
  * ### GET `/{task_id}`
 
    Метод для получения статуса задачи.</br></br>
    
    <b>Request Body</b>:</br>
-   Parameters: task_id: uuid</br></br>
+   Parameters: 
+     - task_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"</br></br>
    
    <b>Response Body</b>:</br>
-   Code: 200</br>
+     - <b>Code 200 OK</b></br>
    Header: ```application/json```
    JSON:
    ```json
    {
      "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-     "meeting_key": "string",
+     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
      "status": "RUNNING",
-     "protocol_key": "string",
-     "created_at": "2025-06-09T05:28:30.051Z"
+     "result_id": null,
+     "created_at": "2025-06-09T05:28:30.051Z",
+     "updated_at": "2025-06-10T11:07:35.961789"
    }
    ```
+     - <b>Code 404 Not found</b>
+     ```json
+     {"detail": "Task not found"}
+     ```
+
+## Results
+
+Ресурс для получения результатов выполненных задач.
+
+### Базовый url `/api/v1/results`
+
+* ### GET `/{results_id}/download`
+  Метод для скачивания документа с протоколом совещания.
+  
+  <b>Request Body</b>:</br>
+  Parameters:
+    - <b>result_id</b>: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+
+  <b>Response Body</b>:</br>
+     - <b>Code 200 OK</b> - Возвращает .docx файл.</br>
+     Media type: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`<br>
+     Headers: `"Content-Disposition": f"attachment; filename={filename}"`
+     - <b>Code 404 Not found</b></br>
+       - JSON
+       ```json
+       {"detail": "Result not found"}
+       ```
