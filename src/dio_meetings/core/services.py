@@ -49,15 +49,19 @@ class SummarizationService:
             speakers_count: int,
             prompt_template: str
     ) -> Optional[Document]:
+        '''
         transcriptions = await self._stt_service.transcript(
             audio_file=audio_file,
             audio_format=audio_format,
             speakers_count=speakers_count
         )
         formated_transcriptions = self._format_transcriptions(transcriptions)
+        '''
+        formated_transcriptions = "Здесь пока пусто это тест"
         messages = [SystemMessage(text=prompt_template), UserMessage(text=formated_transcriptions)]
         ai_message = await self._llm_service.generate(messages)
         document = self._document_factory.create_document(ai_message.text)
+        print(document.file_data)
         return document
 
     @staticmethod
@@ -126,6 +130,9 @@ class TaskService:
             file_name=result.file_name,
             bucket_name=RESULT_BUCKET_NAME
         )
+        print(file_data)
+        print(75 * "=")
+        print(result.file_name)
         return DownloadedFile(file_data=file_data, file_name=result.file_name)
 
 
@@ -181,10 +188,3 @@ class MeetingService:
             bucket_name=MEETING_BUCKET_NAME
         )
         return is_deleted
-
-    async def get_meetings(self) -> list[Optional[CreatedMeeting]]:
-        meetings = await self._meeting_repository.read_all()
-        if not meetings:
-            return []
-        return meetings
-

@@ -32,6 +32,7 @@ class SQLResultRepository(ResultRepository):
             created_result = result.scalar_one()
             return CreatedResult.model_validate(created_result)
         except SQLAlchemyError as e:
+            await self.session.rollback()
             self.logger.error(f"Error while creating result: {e}")
             raise CreateDataError(f"Error while creating result: {e}") from e
 
@@ -45,6 +46,7 @@ class SQLResultRepository(ResultRepository):
             created_result = result.scalar_one_or_none()
             return CreatedResult.model_validate(created_result) if created_result else None
         except SQLAlchemyError as e:
+            await self.session.rollback()
             self.logger.error(f"Error while reading result: {e}")
             raise ReadDataError(f"Error while reading result: {e}") from e
 
@@ -58,5 +60,6 @@ class SQLResultRepository(ResultRepository):
             await self.session.commit()
             return result.rowcount() > 0
         except SQLAlchemyError as e:
+            await self.session.rollback()
             self.logger.error(f"Error while deleting result: {e}")
             raise DeleteDataError(f"Error while deleting result: {e}") from e

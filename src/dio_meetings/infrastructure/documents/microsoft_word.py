@@ -1,6 +1,7 @@
 from typing import Union
 
 import io
+from uuid import uuid4
 
 import markdown
 
@@ -26,10 +27,14 @@ class MicrosoftWordFactory(DocumentFactory):
     def __init__(self) -> None:
         self.document = WordDocument()
 
+    @property
+    def random_file_name(self) -> str:
+        return f"{uuid4()}.docx"
+
     def create_document(self, text: str) -> Document:
         self._build_document(text)
         file_buffer = io.BytesIO()
-        self.document.save("")
+        self.document.save(file_buffer)
         file_buffer.seek(0)
         return Document.from_bytes_io(
             file_buffer=file_buffer,

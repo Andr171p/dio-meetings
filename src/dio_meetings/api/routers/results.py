@@ -26,5 +26,8 @@ async def download_result(result_id: UUID, task_service: FromDishka[TaskService]
     return Response(
         content=downloaded_file.file_data,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": f"attachment; filename={downloaded_file.file_name}"}
+        headers={
+            "Content-Disposition": f"attachment; filename*=UTF-8''{downloaded_file.file_name}",
+            "Content-Length": str(len(downloaded_file.file_data)),
+        }
     )

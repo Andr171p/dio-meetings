@@ -24,7 +24,7 @@ class Task(BaseModel):
     task_id: UUID
     meeting_id: UUID
     status: TASK_STATUS  # Статус выполнения задачи
-    result_id: Optional[str] = None
+    result_id: Optional[UUID] = None
 
     model_config = ConfigDict(from_attributes=True)
 
