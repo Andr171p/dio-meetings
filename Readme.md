@@ -60,7 +60,7 @@
        - Headers: ```"Content-Disposition": f"attachment; filename={}"```</br>
        - Data: bytes
     * <b>Code 404 Not found</b></br>
-       - JSON:
+       JSON:
        ```json
        {"detail": "Meeting not found"}
        ```
@@ -75,7 +75,7 @@
   <b>Response Body</b>:</br>
   * <b>Code 204 No content</b> - Успешное удаление</br>
   * <b>Code 404 Not found</b>
-    -  JSON:
+    JSON:
     ```json
     {"detail":  "Meeting not found"}
     ```
@@ -89,7 +89,7 @@
   
   <b>Response body</b>:</br>
   * <b>Code 200 OK</b>
-     - JSON
+    JSON
      ```json
      {
        "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
@@ -103,7 +103,7 @@
      }
      ```
   * <b>Code 404 Not found</b>
-    - JSON
+    JSON
     ```json
     {"detail": "Meeting not found"}
     ```
@@ -225,7 +225,7 @@
      Media type: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`<br>
      Headers: `"Content-Disposition": f"attachment; filename={filename}"`
      - <b>Code 404 Not found</b></br>
-       - JSON
+       JSON
        ```json
        {"detail": "Result not found"}
        ```
