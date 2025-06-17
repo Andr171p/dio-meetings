@@ -18,10 +18,10 @@ from .dto import (
     Transcription
 )
 from .base import (
-    STTService,
-    LLMService,
+    STT,
+    LLM,
     DocumentFactory,
-    S3Repository,
+    FileStorage,
     TaskRepository,
     ResultRepository,
     MeetingRepository
@@ -32,14 +32,9 @@ from ..constants import MEETING_BUCKET_NAME, RESULT_BUCKET_NAME
 
 
 class SummarizationService:
-    def __init__(
-            self,
-            stt_service: STTService,
-            llm_service: LLMService,
-            document_factory: DocumentFactory
-    ) -> None:
-        self._stt_service = stt_service
-        self._llm_service = llm_service
+    def __init__(self, stt: STT, llm: LLM, document_factory: DocumentFactory) -> None:
+        self._stt = stt
+        self._llm = llm
         self._document_factory = document_factory
 
     async def summarize(
@@ -49,14 +44,14 @@ class SummarizationService:
             speakers_count: int,
             prompt_template: str
     ) -> Optional[Document]:
-        transcriptions = await self._stt_service.transcript(
+        transcriptions = await self._stt.transcript(
             audio_file=audio_file,
             audio_format=audio_format,
             speakers_count=speakers_count
         )
         formated_transcriptions = self._format_transcriptions(transcriptions)
         messages = [SystemMessage(text=prompt_template), UserMessage(text=formated_transcriptions)]
-        ai_message = await self._llm_service.generate(messages)
+        ai_message = await self._llm.generate(messages)
         document = self._document_factory.create_document(ai_message.text)
         return document
 
@@ -75,12 +70,12 @@ class TaskService:
             self,
             task_repository: TaskRepository,
             result_repository: ResultRepository,
-            s3_repository: S3Repository,
+            file_storage: FileStorage,
             broker: RedisBroker
     ) -> None:
         self._task_repository = task_repository
         self._result_repository = result_repository
-        self._s3_repository = s3_repository
+        self._file_storage = file_storage
         self._broker = broker
 
     async def create(self, meeting_id: UUID) -> Optional[CreatedTask]:
@@ -99,7 +94,7 @@ class TaskService:
                 status="ERROR"
             )
             return
-        await self._s3_repository.upload_file(
+        await self._file_storage.upload_file(
             file_data=document.file_data,
             file_name=document.file_name,
             bucket_name=RESULT_BUCKET_NAME
@@ -122,7 +117,7 @@ class TaskService:
         result = await self._result_repository.read(result_id)
         if not result:
             return None
-        file_data = await self._s3_repository.download_file(
+        file_data = await self._file_storage.download_file(
             file_name=result.file_name,
             bucket_name=RESULT_BUCKET_NAME
         )
@@ -133,10 +128,10 @@ class MeetingService:
     def __init__(
             self,
             meeting_repository: MeetingRepository,
-            s3_repository: S3Repository
+            file_storage: FileStorage
     ) -> None:
         self._meeting_repository = meeting_repository
-        self._s3_repository = s3_repository
+        self._file_storage = file_storage
 
     async def upload(self, meeting_upload: MeetingUpload) -> CreatedMeeting:
         audio_format = get_file_format(meeting_upload.file_name)
@@ -152,7 +147,7 @@ class MeetingService:
             file_name=file_name,
             date=datetime.now()
         )
-        await self._s3_repository.upload_file(
+        await self._file_storage.upload_file(
             file_data=meeting_upload.audio_bytes,
             file_name=file_name,
             bucket_name=MEETING_BUCKET_NAME
@@ -164,7 +159,7 @@ class MeetingService:
         meeting = await self._meeting_repository.read(meeting_id)
         if not meeting:
             return None
-        file_data = await self._s3_repository.download_file(
+        file_data = await self._file_storage.download_file(
             file_name=meeting.file_name,
             bucket_name=MEETING_BUCKET_NAME
         )
@@ -175,7 +170,7 @@ class MeetingService:
         if not meeting:
             return False
         is_deleted = await self._meeting_repository.delete(meeting_id)
-        await self._s3_repository.delete_file(
+        await self._file_storage.delete_file(
             file_name=meeting.file_name,
             bucket_name=MEETING_BUCKET_NAME
         )

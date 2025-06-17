@@ -1,44 +1,34 @@
-from typing import Literal
-
 import io
 from uuid import UUID, uuid4
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from .enums import Role, TaskStatus, Emotion
 from .domain import Task, Meeting, Result
-
-from ..constants import TASK_STATUS, EMOTION
-
-
-ROLE = Literal[
-    "system",
-    "user",
-    "ai"
-]
 
 
 class BaseMessage(BaseModel):
-    role: ROLE
+    role: Role
     text: str
 
 
 class SystemMessage(BaseMessage):
-    role: ROLE = "system"
+    role: Role = Role.SYSTEM
 
 
 class UserMessage(BaseMessage):
-    role: ROLE = "user"
+    role: Role = Role.USER
 
 
 class AIMessage(BaseMessage):
-    role: ROLE = "ai"
+    role: Role = Role.AI
 
 
 class Transcription(BaseModel):
-    text: str  # Транскрибированный текст
-    speaker_id: int  # ID спикера
-    emotion: EMOTION  # Эмоция спикера
+    text: str         # Транскрибированный текст
+    speaker_id: int   # ID спикера
+    emotion: Emotion  # Эмоция спикера
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -77,7 +67,7 @@ class DownloadedFile(BaseModel):
 
 class TaskCreate(BaseModel):
     meeting_id: UUID
-    status: TASK_STATUS = "RUNNING"
+    status: TaskStatus = TaskStatus.NEW
 
 
 class CreatedTask(Task):

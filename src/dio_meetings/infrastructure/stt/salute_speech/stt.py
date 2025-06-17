@@ -3,11 +3,11 @@ import asyncio
 from .api import SaluteSpeechAPI
 from .constants import SCOPE, DEFAULT_ASYNC_TIMEOUT
 
-from src.dio_meetings.core.base import STTService
+from src.dio_meetings.core.base import STT
 from src.dio_meetings.core.dto import Transcription
 
 
-class SaluteSpeechService(STTService):
+class SaluteSpeech(STT):
     def __init__(
             self,
             api_key: str,

@@ -1,6 +1,5 @@
 __all__ = (
-    "YandexGPTService"
+    "YandexGPT"
 )
 
-from .service import YandexGPTService
-
+from .llm import YandexGPT

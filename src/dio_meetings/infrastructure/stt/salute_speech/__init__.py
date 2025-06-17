@@ -1,5 +1,5 @@
 __all__ = (
-    "SaluteSpeechService"
+    "SaluteSpeech"
 )
 
-from .service import SaluteSpeechService
+from .stt import SaluteSpeech

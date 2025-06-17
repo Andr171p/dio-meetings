@@ -12,7 +12,7 @@ from ..models import MeetingOrm, TaskOrm
 from src.dio_meetings.core.domain import Meeting
 from src.dio_meetings.core.base import MeetingRepository
 from src.dio_meetings.core.dto import CreatedMeeting, CreatedResult
-from src.dio_meetings.core.exceptions import CreateDataError, ReadDataError, DeleteDataError
+from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
 
 
 class SQLMeetingRepository(MeetingRepository):
@@ -34,7 +34,7 @@ class SQLMeetingRepository(MeetingRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while creating meeting: {e}")
-            raise CreateDataError(f"Error while creating meeting: {e}") from e
+            raise CreationError(f"Error while creating meeting: {e}") from e
 
     async def read(self, meeting_id: UUID) -> Optional[CreatedMeeting]:
         try:
@@ -48,7 +48,7 @@ class SQLMeetingRepository(MeetingRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while reading meeting: {e}")
-            raise ReadDataError(f"Error while reading meeting: {e}") from e
+            raise ReadingError(f"Error while reading meeting: {e}") from e
 
     async def read_all(self) -> list[CreatedMeeting]:
         try:
@@ -62,7 +62,7 @@ class SQLMeetingRepository(MeetingRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while reading meetings: {e}")
-            raise ReadDataError(f"Error while reading meetings: {e}") from e
+            raise ReadingError(f"Error while reading meetings: {e}") from e
 
     async def delete(self, meeting_id: UUID) -> bool:
         try:
@@ -76,7 +76,7 @@ class SQLMeetingRepository(MeetingRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while deleting meeting: {e}")
-            raise DeleteDataError(f"Error while deleting meeting: {e}") from e
+            raise DeletingError(f"Error while deleting meeting: {e}") from e
 
     async def get_result(self, meeting_id: UUID) -> Optional[CreatedResult]:
         try:
@@ -93,4 +93,4 @@ class SQLMeetingRepository(MeetingRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while receiving result: {e}")
-            raise ReadDataError(f"Error while receiving result: {e}") from e
+            raise ReadingError(f"Error while receiving result: {e}") from e

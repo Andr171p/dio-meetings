@@ -12,10 +12,10 @@ from ..models import TaskOrm
 from src.dio_meetings.core.base import TaskRepository
 from src.dio_meetings.core.dto import TaskCreate, CreatedTask
 from src.dio_meetings.core.exceptions import (
-    CreateDataError,
-    ReadDataError,
-    UpdateDataError,
-    DeleteDataError
+    CreationError,
+    ReadingError,
+    UpdatingError,
+    DeletingError
 )
 
 
@@ -38,7 +38,7 @@ class SQLTaskRepository(TaskRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while creating task: {e}")
-            raise CreateDataError(f"Error while creating task: {e}") from e
+            raise CreationError(f"Error while creating task: {e}") from e
 
     async def read(self, task_id: UUID) -> Optional[CreatedTask]:
         try:
@@ -52,7 +52,7 @@ class SQLTaskRepository(TaskRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while reading task: {e}")
-            raise ReadDataError(f"Error while reading task: {e}") from e
+            raise ReadingError(f"Error while reading task: {e}") from e
 
     async def update(self, task_id: UUID, **kwargs) -> CreatedTask:
         try:
@@ -69,7 +69,7 @@ class SQLTaskRepository(TaskRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while updating task: {e}")
-            raise UpdateDataError(f"Error while updating task: {e}") from e
+            raise UpdatingError(f"Error while updating task: {e}") from e
 
     async def delete(self, task_id: UUID) -> bool:
         try:
@@ -83,4 +83,4 @@ class SQLTaskRepository(TaskRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while deleting task: {e}")
-            raise DeleteDataError(f"Error while deleting task: {e}") from e
+            raise DeletingError(f"Error while deleting task: {e}") from e

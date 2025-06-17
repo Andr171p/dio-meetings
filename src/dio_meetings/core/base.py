@@ -18,7 +18,7 @@ from .dto import (
 )
 
 
-class STTService(ABC):
+class STT(ABC):
     @abstractmethod
     async def transcript(
             self,
@@ -28,7 +28,7 @@ class STTService(ABC):
     ) -> list[Transcription]: pass
 
 
-class LLMService(ABC):
+class LLM(ABC):
     @abstractmethod
     async def generate(self, messages: list[BaseMessage]) -> AIMessage: pass
 
@@ -38,7 +38,7 @@ class DocumentFactory(ABC):
     def create_document(self, text: str) -> Document: pass
 
 
-class S3Repository(ABC):
+class FileStorage(ABC):
     @abstractmethod
     async def upload_file(
             self,

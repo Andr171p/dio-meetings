@@ -7,14 +7,14 @@ import logging
 from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 
-from ...core.base import S3Repository
-from ...core.exceptions import S3Error, UploadError, DownloadError
+from src.dio_meetings.core.base import FileStorage
+from src.dio_meetings.core.exceptions import FileStoreError, UploadingError, DownloadingError
 
 
 SERVICE_NAME = "s3"
 
 
-class MinioS3Repository(S3Repository):
+class S3Client(FileStorage):
     def __init__(
             self,
             url: str,
@@ -45,7 +45,7 @@ class MinioS3Repository(S3Repository):
             self.logger.info(f"Bucket {bucket_name} created successfully")
         except Exception as e:
             self.logger.error(f"Error while creating bucket: {e}")
-            raise S3Error(f"Error while creating bucket: {e}") from e
+            raise FileStoreError(f"Error while creating bucket: {e}") from e
 
     async def upload_file(
             self,
@@ -61,7 +61,7 @@ class MinioS3Repository(S3Repository):
                     Body=file_data
                 )
         except Exception as e:
-            raise UploadError(f"Error while uploading file: {e}") from e
+            raise UploadingError(f"Error while uploading file: {e}") from e
 
     async def download_file(self, file_name: str, bucket_name: str) -> bytes:
         try:
@@ -71,7 +71,7 @@ class MinioS3Repository(S3Repository):
                 return await body.read()
         except Exception as e:
             self.logger.error(f"Error while receiving file: {e}")
-            raise DownloadError(f"Error while receiving file: {e}") from e
+            raise DownloadingError(f"Error while receiving file: {e}") from e
 
     async def delete_file(self, file_name: str, bucket_name: str) -> str:
         try:
@@ -80,4 +80,4 @@ class MinioS3Repository(S3Repository):
             return file_name
         except Exception as e:
             self.logger.error(f"Error while deleting file: {e}")
-            raise S3Error(f"Error while deleting file: {e}") from e
+            raise FileStoreError(f"Error while deleting file: {e}") from e

@@ -12,7 +12,7 @@ from ..models import ResultOrm
 from src.dio_meetings.core.domain import Result
 from src.dio_meetings.core.dto import CreatedResult
 from src.dio_meetings.core.base import ResultRepository
-from src.dio_meetings.core.exceptions import CreateDataError, ReadDataError, DeleteDataError
+from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
 
 
 class SQLResultRepository(ResultRepository):
@@ -34,7 +34,7 @@ class SQLResultRepository(ResultRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while creating result: {e}")
-            raise CreateDataError(f"Error while creating result: {e}") from e
+            raise CreationError(f"Error while creating result: {e}") from e
 
     async def read(self, result_id: UUID) -> Optional[CreatedResult]:
         try:
@@ -48,7 +48,7 @@ class SQLResultRepository(ResultRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while reading result: {e}")
-            raise ReadDataError(f"Error while reading result: {e}") from e
+            raise ReadingError(f"Error while reading result: {e}") from e
 
     async def delete(self, result_id: UUID) -> bool:
         try:
@@ -62,4 +62,4 @@ class SQLResultRepository(ResultRepository):
         except SQLAlchemyError as e:
             await self.session.rollback()
             self.logger.error(f"Error while deleting result: {e}")
-            raise DeleteDataError(f"Error while deleting result: {e}") from e
+            raise DeletingError(f"Error while deleting result: {e}") from e

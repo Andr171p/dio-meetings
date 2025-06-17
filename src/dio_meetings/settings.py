@@ -46,12 +46,14 @@ class RedisSettings(BaseSettings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/0"
 
 
+class HuggingFaceSettings(BaseSettings):
+    TOKEN: str = os.getenv("HUGGINGFACE_TOKEN")
+
+
 class Settings(BaseSettings):
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()
     minio: MiniOSettings = MiniOSettings()
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
-
-
-print(MiniOSettings())
+    hugging_face: HuggingFaceSettings = HuggingFaceSettings()

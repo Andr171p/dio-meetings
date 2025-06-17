@@ -1,14 +1,14 @@
 
 
-class S3Error(Exception):
+class FileStoreError(Exception):
     pass
 
 
-class UploadError(S3Error):
+class UploadingError(FileStoreError):
     pass
 
 
-class DownloadError(S3Error):
+class DownloadingError(FileStoreError):
     pass
 
 
@@ -16,17 +16,17 @@ class RepositoryError(Exception):
     pass
 
 
-class ReadDataError(RepositoryError):
+class CreationError(RepositoryError):
     pass
 
 
-class CreateDataError(RepositoryError):
+class ReadingError(RepositoryError):
     pass
 
 
-class UpdateDataError(RepositoryError):
+class UpdatingError(RepositoryError):
     pass
 
 
-class DeleteDataError(RepositoryError):
+class DeletingError(RepositoryError):
     pass

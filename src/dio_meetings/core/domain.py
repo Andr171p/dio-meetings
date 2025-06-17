@@ -9,13 +9,13 @@ from ..constants import TASK_STATUS
 
 
 class Meeting(BaseModel):
-    meeting_id: UUID  # Уникальный ID встречи
-    name: str  # Название встречи
-    audio_format: str  # Формат аудио файла
-    duration: float  # Продолжительность в секундах
+    meeting_id: UUID     # Уникальный ID встречи
+    name: str            # Название встречи
+    audio_format: str    # Формат аудио файла
+    duration: float      # Продолжительность в секундах
     speakers_count: int  # Количество участников
-    file_name: str  # Ключ к файлу из s3 хранилища, в формате [uuid].[audio_format]
-    date: datetime  # Дата встречи
+    file_name: str       # Ключ к файлу из s3 хранилища, в формате [uuid].[audio_format]
+    date: datetime       # Дата встречи
 
     model_config = ConfigDict(from_attributes=True)
 
