@@ -30,3 +30,20 @@ class UpdatingError(RepositoryError):
 
 class DeletingError(RepositoryError):
     pass
+
+
+class ServiceError(Exception):
+    pass
+
+
+class TaskCreationError(ServiceError):
+    pass
+
+
+class TaskStatusUpdatingError(ServiceError):
+    pass
+
+
+class ResultDownloadingError(ServiceError):
+    pass
+

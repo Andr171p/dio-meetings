@@ -3,8 +3,6 @@ from typing import Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from faststream.redis import RedisBroker
-
 from .domain import Meeting, Result
 from .dto import (
     Document,
@@ -20,11 +18,22 @@ from .dto import (
 from .base import (
     BaseSTT,
     BaseLLM,
+    BaseBroker,
     DocumentFactory,
     FileStorage,
     TaskRepository,
     ResultRepository,
     MeetingRepository
+)
+from .exceptions import (
+    UpdatingError,
+    ReadingError,
+    CreationError,
+    UploadingError,
+    DownloadingError,
+    TaskCreationError,
+    TaskStatusUpdatingError,
+    ResultDownloadingError
 )
 
 from ..utils import get_file_format, get_audio_duration
@@ -44,7 +53,7 @@ class SummarizationService:
             speakers_count: int,
             prompt_template: str
     ) -> Optional[Document]:
-        transcriptions = await self._stt.transcript(
+        transcriptions = await self._stt.transcribe(
             audio_file=audio_file,
             audio_format=audio_format,
             speakers_count=speakers_count
@@ -71,7 +80,7 @@ class TaskService:
             task_repository: TaskRepository,
             result_repository: ResultRepository,
             file_storage: FileStorage,
-            broker: RedisBroker
+            broker: BaseBroker
     ) -> None:
         self._task_repository = task_repository
         self._result_repository = result_repository
@@ -79,33 +88,39 @@ class TaskService:
         self._broker = broker
 
     async def create(self, meeting_id: UUID) -> Optional[CreatedTask]:
-        task = TaskCreate(meeting_id=meeting_id, status="RUNNING")
-        created_task = await self._task_repository.create(task)
-        if not created_task:
-            return None
-        created_task.status = "NEW"
-        await self._broker.publish(created_task, channel="tasks")
-        return created_task
+        try:
+            task = TaskCreate(meeting_id=meeting_id, status="RUNNING")
+            created_task = await self._task_repository.create(task)
+            if not created_task:
+                return None
+            created_task.status = "NEW"
+            await self._broker.publish(created_task, channel="tasks")
+            return created_task
+        except CreationError as e:
+            raise TaskCreationError(f"Error while task creation: {e}") from e
 
     async def update_status(self, task_id: UUID, document: Optional[Document]) -> None:
-        if not document:
+        try:
+            if not document:
+                await self._task_repository.update(
+                    task_id=task_id,
+                    status="ERROR"
+                )
+                return
+            await self._file_storage.upload_file(
+                file_data=document.file_data,
+                file_name=document.file_name,
+                bucket_name=RESULT_BUCKET_NAME
+            )
             await self._task_repository.update(
                 task_id=task_id,
-                status="ERROR"
+                status="DONE",
+                result_id=document.id
             )
-            return
-        await self._file_storage.upload_file(
-            file_data=document.file_data,
-            file_name=document.file_name,
-            bucket_name=RESULT_BUCKET_NAME
-        )
-        await self._task_repository.update(
-            task_id=task_id,
-            status="DONE",
-            result_id=document.id
-        )
-        result = Result(result_id=document.id, file_name=document.file_name)
-        await self._result_repository.create(result)
+            result = Result(result_id=document.id, file_name=document.file_name)
+            await self._result_repository.create(result)
+        except (UpdatingError, UploadingError) as e:
+            raise TaskStatusUpdatingError(f"Error while updating task status: {e}") from e
 
     async def get_status(self, task_id: UUID) -> Optional[CreatedTask]:
         task = await self._task_repository.read(task_id)
@@ -114,14 +129,17 @@ class TaskService:
         return task
 
     async def download_result(self, result_id: UUID) -> Optional[DownloadedFile]:
-        result = await self._result_repository.read(result_id)
-        if not result:
-            return None
-        file_data = await self._file_storage.download_file(
-            file_name=result.file_name,
-            bucket_name=RESULT_BUCKET_NAME
-        )
-        return DownloadedFile(file_data=file_data, file_name=result.file_name)
+        try:
+            result = await self._result_repository.read(result_id)
+            if not result:
+                return None
+            file_data = await self._file_storage.download_file(
+                file_name=result.file_name,
+                bucket_name=RESULT_BUCKET_NAME
+            )
+            return DownloadedFile(file_data=file_data, file_name=result.file_name)
+        except (ReadingError, DownloadingError) as e:
+            raise ResultDownloadingError(f"Error while downloading result: {e}") from e
 
 
 class MeetingService:

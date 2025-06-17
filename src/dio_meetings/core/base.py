@@ -20,7 +20,7 @@ from .dto import (
 
 class BaseSTT(ABC):
     @abstractmethod
-    async def transcript(
+    async def transcribe(
             self,
             audio_file: bytes,
             audio_format: str,
