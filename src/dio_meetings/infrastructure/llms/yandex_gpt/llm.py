@@ -1,11 +1,11 @@
 from .api import YandexGPTAPI
 from .constants import MODELS, URL
 
-from src.dio_meetings.core.base import LLM
+from src.dio_meetings.core.base import BaseLLM
 from src.dio_meetings.core.dto import BaseMessage, AIMessage
 
 
-class YandexGPT(LLM):
+class YandexGPT(BaseLLM):
     def __init__(
             self,
             folder_id: str,

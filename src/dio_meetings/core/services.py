@@ -18,8 +18,8 @@ from .dto import (
     Transcription
 )
 from .base import (
-    STT,
-    LLM,
+    BaseSTT,
+    BaseLLM,
     DocumentFactory,
     FileStorage,
     TaskRepository,
@@ -32,7 +32,7 @@ from ..constants import MEETING_BUCKET_NAME, RESULT_BUCKET_NAME
 
 
 class SummarizationService:
-    def __init__(self, stt: STT, llm: LLM, document_factory: DocumentFactory) -> None:
+    def __init__(self, stt: BaseSTT, llm: BaseLLM, document_factory: DocumentFactory) -> None:
         self._stt = stt
         self._llm = llm
         self._document_factory = document_factory

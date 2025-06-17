@@ -8,8 +8,8 @@ from faststream.redis import RedisBroker
 
 from .core.services import SummarizationService, TaskService, MeetingService
 from .core.base import (
-    STT,
-    LLM,
+    BaseLLM,
+    BaseSTT,
     DocumentFactory,
     FileStorage,
     MeetingRepository,
@@ -51,14 +51,14 @@ class AppProvider(Provider):
             yield session
 
     @provide(scope=Scope.APP)
-    def get_stt(self, config: Settings) -> STT:
+    def get_stt(self, config: Settings) -> BaseSTT:
         return SaluteSpeech(
             api_key=config.salute_speech.API_KEY,
             scope=config.salute_speech.SCOPE
         )
 
     @provide(scope=Scope.APP)
-    def get_llm(self, config: Settings) -> LLM:
+    def get_llm(self, config: Settings) -> BaseLLM:
         return YandexGPT(
             folder_id=config.yandex_gpt.FOLDER_ID,
             api_key=config.yandex_gpt.API_KEY
@@ -117,8 +117,8 @@ class AppProvider(Provider):
     @provide(scope=Scope.APP)
     def get_summarization_service(
             self,
-            stt: STT,
-            llm: LLM,
+            stt: BaseSTT,
+            llm: BaseLLM,
             document_factory: DocumentFactory
     ) -> SummarizationService:
         return SummarizationService(

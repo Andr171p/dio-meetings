@@ -18,7 +18,7 @@ from .dto import (
 )
 
 
-class STT(ABC):
+class BaseSTT(ABC):
     @abstractmethod
     async def transcript(
             self,
@@ -28,7 +28,7 @@ class STT(ABC):
     ) -> list[Transcription]: pass
 
 
-class LLM(ABC):
+class BaseLLM(ABC):
     @abstractmethod
     async def generate(self, messages: list[BaseMessage]) -> AIMessage: pass
 
