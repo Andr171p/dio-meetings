@@ -1,8 +1,9 @@
-fastapi~=0.115.12
+fastapi[all]~=0.115.12
 dishka~=1.6.0
 pydantic~=2.11.5
 SQLAlchemy~=2.0.41
 faststream~=0.5.42
+faststream[redis]~=0.5.42
 python-dotenv~=1.1.0
 pydantic-settings~=2.9.1
 aiobotocore~=2.22.0
