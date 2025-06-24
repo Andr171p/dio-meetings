@@ -37,7 +37,7 @@ class FileMetadata(BaseModel):
     title: Optional[str] = None  # Заголовок / тема файла
     key: str                     # Ссылка на S3
     bucket: str                  # Имя бакета в S3
-    size: int                    # Размер в МБ
+    size: float                  # Размер в МБ
     format: str                  # Формат файла / расширение
     type: FileType               # Тип файла
     uploaded_date: datetime      # Дата загрузки
