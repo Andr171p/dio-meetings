@@ -47,37 +47,28 @@ class S3Client(FileStorage):
             self.logger.error(f"Error while creating bucket: {e}")
             raise FileStoreError(f"Error while creating bucket: {e}") from e
 
-    async def upload_file(
-            self,
-            file_data: bytes,
-            file_name: str,
-            bucket_name: str
-    ) -> None:
+    async def upload_file(self, data: bytes, key: str, bucket: str) -> None:
         try:
             async with self._get_client() as client:
-                await client.put_object(
-                    Bucket=bucket_name,
-                    Key=file_name,
-                    Body=file_data
-                )
+                await client.put_object(Bucket=bucket, Key=key, Body=data)
         except Exception as e:
             raise UploadingError(f"Error while uploading file: {e}") from e
 
-    async def download_file(self, file_name: str, bucket_name: str) -> bytes:
+    async def download_file(self, key: str, bucket: str) -> bytes:
         try:
             async with self._get_client() as client:
-                response = await client.get_object(Bucket=bucket_name, Key=file_name)
+                response = await client.get_object(Bucket=bucket, Key=key)
                 body = response["Body"]
                 return await body.read()
         except Exception as e:
             self.logger.error(f"Error while receiving file: {e}")
             raise DownloadingError(f"Error while receiving file: {e}") from e
 
-    async def remove_file(self, file_name: str, bucket_name: str) -> str:
+    async def remove_file(self, key: str, bucket: str) -> str:
         try:
             async with self._get_client() as client:
-                await client.delete_object(Bucket=bucket_name, Key=file_name)
-            return file_name
+                await client.delete_object(Bucket=bucket, Key=key)
+            return key
         except Exception as e:
             self.logger.error(f"Error while deleting file: {e}")
             raise FileStoreError(f"Error while deleting file: {e}") from e
