@@ -5,24 +5,15 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from .domain import Meeting, Result
-from .dto import (
-    BaseMessage,
-    AIMessage,
-    Transcription,
-    Document,
-    TaskCreate,
-    CreatedTask,
-    CreatedMeeting,
-    CreatedResult
-)
+from .domain import FileMetadata, File, Task
+from .dto import BaseMessage, AIMessage, Transcription
 
 
 class BaseSTT(ABC):
     @abstractmethod
     async def transcribe(
             self,
-            audio_file: bytes,
+            audio_data: bytes,
             audio_format: str,
             speakers_count: int
     ) -> list[Transcription]: pass
@@ -35,68 +26,46 @@ class BaseLLM(ABC):
 
 class DocumentFactory(ABC):
     @abstractmethod
-    def create_document(self, text: str) -> Document: pass
+    def create_document(self, text: str) -> File: pass
 
 
 class FileStorage(ABC):
     @abstractmethod
-    async def upload_file(
-            self,
-            file_data: bytes,
-            file_name: str,
-            bucket_name: str
-    ) -> None: pass
+    async def upload_file(self, data: bytes, key: str, bucket: str) -> None: pass
 
     @abstractmethod
-    async def download_file(self, file_name: str, bucket_name: str) -> bytes: pass
+    async def download_file(self, key: str, bucket: str) -> bytes: pass
 
     @abstractmethod
-    async def delete_file(self, file_name: str, bucket_name: str) -> str: pass
+    async def remove_file(self, key: str, bucket: str) -> str: pass
+
+
+class FileMetadataRepository(ABC):
+    @abstractmethod
+    async def create(self, file_metadata: FileMetadata) -> FileMetadata: pass
+
+    @abstractmethod
+    async def read(self, id: UUID) -> Optional[FileMetadata]: pass
+
+    @abstractmethod
+    async def read_all(self, bucket: Optional[str] = None) -> list[FileMetadata]: pass
+
+    @abstractmethod
+    async def delete(self, id: UUID) -> bool: pass
 
 
 class TaskRepository(ABC):
     @abstractmethod
-    async def create(self, task: TaskCreate) -> CreatedTask: pass
+    async def create(self, task: Task) -> Task: pass
 
     @abstractmethod
-    async def read(self, task_id: UUID) -> Optional[CreatedTask]: pass
+    async def read(self, id: UUID) -> Optional[Task]: pass
 
     @abstractmethod
-    async def update(self, task_id: UUID, **kwargs) -> CreatedTask: pass
+    async def update(self, id: UUID, **kwargs) -> Task: pass
 
     @abstractmethod
-    async def delete(self, task_id: UUID) -> bool: pass
-
-
-class MeetingRepository(ABC):
-    @abstractmethod
-    async def create(self, meeting: Meeting) -> CreatedMeeting: pass
-
-    @abstractmethod
-    async def read(self, meeting_id: UUID) -> Optional[CreatedMeeting]: pass
-
-    @abstractmethod
-    async def read_all(self) -> list[CreatedMeeting]: pass
-
-    # @abstractmethod
-    # async def paginate(self, page: int, limit: int) -> list[CreatedMeeting]: pass
-
-    @abstractmethod
-    async def delete(self, meeting_id: UUID) -> bool: pass
-
-    @abstractmethod
-    async def get_result(self, meeting_id: UUID) -> Optional[CreatedResult]: pass
-
-
-class ResultRepository(ABC):
-    @abstractmethod
-    async def create(self, result: Result) -> CreatedResult: pass
-
-    @abstractmethod
-    async def read(self, result_id: UUID) -> Optional[CreatedResult]: pass
-
-    @abstractmethod
-    async def delete(self, result_id: UUID) -> bool: pass
+    async def delete(self, id: UUID) -> bool: pass
 
 
 class BaseBroker(Protocol):

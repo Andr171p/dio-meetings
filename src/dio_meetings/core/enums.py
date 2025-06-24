@@ -8,7 +8,7 @@ class Role(StrEnum):
 
 
 class Emotion(StrEnum):
-    POSITIVE  = "positive"
+    POSITIVE = "positive"
     NEUTRAL = "neutral"
     NEGATIVE = "negative"
 
@@ -18,3 +18,8 @@ class TaskStatus(StrEnum):
     RUNNING = "RUNNING"
     DONE = "DONE"
     ERROR = "ERROR"
+
+
+class FileType(StrEnum):
+    AUDIO = "AUDIO"
+    DOCUMENT = "DOCUMENT"

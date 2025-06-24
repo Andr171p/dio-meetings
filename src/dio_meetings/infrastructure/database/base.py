@@ -1,3 +1,4 @@
+from uuid import UUID, uuid4
 from datetime import datetime
 
 from sqlalchemy import func
@@ -8,9 +9,10 @@ from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
-    id: Mapped[int] = mapped_column(
-        autoincrement=True,
-        primary_key=True
+    id: Mapped[UUID] = mapped_column(
+        primary_key=True,
+        default=uuid4,
+        server_default=func.get_random_uuid()
     )
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(

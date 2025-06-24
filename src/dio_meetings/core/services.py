@@ -3,18 +3,9 @@ from typing import Optional
 from uuid import UUID, uuid4
 from datetime import datetime
 
-from .domain import Meeting, Result
-from .dto import (
-    Document,
-    SystemMessage,
-    UserMessage,
-    CreatedTask,
-    TaskCreate,
-    MeetingUpload,
-    CreatedMeeting,
-    DownloadedFile,
-    Transcription
-)
+from .enums import FileType, TaskStatus
+from .domain import File, FileMetadata, Task
+from .dto import SystemMessage, UserMessage, Transcription
 from .base import (
     BaseSTT,
     BaseLLM,
@@ -22,22 +13,18 @@ from .base import (
     DocumentFactory,
     FileStorage,
     TaskRepository,
-    ResultRepository,
-    MeetingRepository
+    FileMetadataRepository
 )
 from .exceptions import (
     UpdatingError,
-    ReadingError,
     CreationError,
     UploadingError,
-    DownloadingError,
     TaskCreationError,
-    TaskStatusUpdatingError,
-    ResultDownloadingError
+    TaskStatusUpdatingError
 )
 
-from ..utils import get_file_format, get_audio_duration
-from ..constants import MEETING_BUCKET_NAME, RESULT_BUCKET_NAME
+from ..utils import generate_file_name
+from ..constants import DOCUMENTS_BUCKET
 
 
 class SummarizationService:
@@ -46,16 +33,12 @@ class SummarizationService:
         self._llm = llm
         self._document_factory = document_factory
 
-    async def summarize(
-            self,
-            audio_file: bytes,
-            audio_format: str,
-            speakers_count: int,
-            prompt_template: str
-    ) -> Optional[Document]:
+    async def summarize(self, audio: File, speakers_count: int, prompt_template: str) -> Optional[File]:
+        if audio.type != FileType.AUDIO:
+            raise ValueError("File type must be audio")
         transcriptions = await self._stt.transcribe(
-            audio_file=audio_file,
-            audio_format=audio_format,
+            audio_data=audio.data,
+            audio_format=audio.format,
             speakers_count=speakers_count
         )
         formated_transcriptions = self._format_transcriptions(transcriptions)
@@ -78,118 +61,91 @@ class TaskService:
     def __init__(
             self,
             task_repository: TaskRepository,
-            result_repository: ResultRepository,
+            file_metadata_repository: FileMetadataRepository,
             file_storage: FileStorage,
             broker: BaseBroker
     ) -> None:
         self._task_repository = task_repository
-        self._result_repository = result_repository
+        self._file_metadata_repository = file_metadata_repository
         self._file_storage = file_storage
         self._broker = broker
 
-    async def create(self, meeting_id: UUID) -> Optional[CreatedTask]:
+    async def create(self, file_id: UUID) -> Optional[Task]:
         try:
-            task = TaskCreate(meeting_id=meeting_id, status="RUNNING")
+            task = Task(file_id=file_id, status=TaskStatus.RUNNING)
             created_task = await self._task_repository.create(task)
-            if not created_task:
-                return None
-            created_task.status = "NEW"
+            created_task.status = TaskStatus.NEW
             await self._broker.publish(created_task, channel="tasks")
             return created_task
         except CreationError as e:
             raise TaskCreationError(f"Error while task creation: {e}") from e
 
-    async def update_status(self, task_id: UUID, document: Optional[Document]) -> None:
+    async def update_status(self, task_id: UUID, document: Optional[File]) -> None:
+        if document.type != FileType.DOCUMENT and document:
+            raise ValueError("File type must be document")
         try:
             if not document:
-                await self._task_repository.update(
-                    task_id=task_id,
-                    status="ERROR"
-                )
+                await self._task_repository.update(id=task_id, status=TaskStatus.ERROR)
                 return
-            await self._file_storage.upload_file(
-                file_data=document.file_data,
-                file_name=document.file_name,
-                bucket_name=RESULT_BUCKET_NAME
+            key = generate_file_name(document.format)
+            result_id = uuid4()
+            await self._file_storage.upload_file(data=document.data, key=key, bucket=DOCUMENTS_BUCKET)
+            await self._task_repository.update(id=task_id, status=TaskStatus.DONE, result_id=result_id)
+            file_metadata = FileMetadata(
+                id=result_id,
+                title="Протокол совещания",
+                key=key,
+                bucket=DOCUMENTS_BUCKET,
+                size=document.size,
+                format=document.format,
+                type=document.type,
+                uploaded_date=datetime.now()
             )
-            await self._task_repository.update(
-                task_id=task_id,
-                status="DONE",
-                result_id=document.id
-            )
-            result = Result(result_id=document.id, file_name=document.file_name)
-            await self._result_repository.create(result)
-        except (UpdatingError, UploadingError) as e:
+            await self._file_metadata_repository.create(file_metadata)
+        except (UpdatingError, UploadingError, CreationError) as e:
             raise TaskStatusUpdatingError(f"Error while updating task status: {e}") from e
 
-    async def get_status(self, task_id: UUID) -> Optional[CreatedTask]:
+    async def get_status(self, task_id: UUID) -> Optional[Task]:
         task = await self._task_repository.read(task_id)
         if not task:
             return None
         return task
 
-    async def download_result(self, result_id: UUID) -> Optional[DownloadedFile]:
-        try:
-            result = await self._result_repository.read(result_id)
-            if not result:
-                return None
-            file_data = await self._file_storage.download_file(
-                file_name=result.file_name,
-                bucket_name=RESULT_BUCKET_NAME
-            )
-            return DownloadedFile(file_data=file_data, file_name=result.file_name)
-        except (ReadingError, DownloadingError) as e:
-            raise ResultDownloadingError(f"Error while downloading result: {e}") from e
 
-
-class MeetingService:
+class FileService:
     def __init__(
             self,
-            meeting_repository: MeetingRepository,
+            file_metadata_repository: FileMetadataRepository,
             file_storage: FileStorage
     ) -> None:
-        self._meeting_repository = meeting_repository
+        self._file_metadata_repository = file_metadata_repository
         self._file_storage = file_storage
 
-    async def upload(self, meeting_upload: MeetingUpload) -> CreatedMeeting:
-        audio_format = get_file_format(meeting_upload.file_name)
-        duration = get_audio_duration(meeting_upload.audio_bytes, audio_format)
-        meeting_id = uuid4()
-        file_name = f"{meeting_id}.{audio_format}"
-        meeting = Meeting(
-            meeting_id=meeting_id,
-            name=meeting_upload.name,
-            audio_format=audio_format,
-            duration=duration,
-            speakers_count=meeting_upload.speakers_count,
-            file_name=file_name,
-            date=datetime.now()
+    async def upload(self, file: File, bucket: str) -> FileMetadata:
+        key = generate_file_name(file.format)
+        await self._file_storage.upload_file(data=file.data, key=key, bucket=bucket)
+        file_metadata = FileMetadata(
+            key=key,
+            bucket=bucket,
+            size=file.size,
+            format=file.format,
+            type=file.type,
+            uploaded_date=datetime.now()
         )
-        await self._file_storage.upload_file(
-            file_data=meeting_upload.audio_bytes,
-            file_name=file_name,
-            bucket_name=MEETING_BUCKET_NAME
-        )
-        created_meeting = await self._meeting_repository.create(meeting)
-        return created_meeting
+        created_file_metadata = await self._file_metadata_repository.create(file_metadata)
+        return created_file_metadata
 
-    async def download(self, meeting_id: UUID) -> Optional[DownloadedFile]:
-        meeting = await self._meeting_repository.read(meeting_id)
-        if not meeting:
+    async def download(self, id: UUID, bucket: str) -> Optional[File]:
+        file_metadata = await self._file_metadata_repository.read(id)
+        if not file_metadata:
             return None
-        file_data = await self._file_storage.download_file(
-            file_name=meeting.file_name,
-            bucket_name=MEETING_BUCKET_NAME
-        )
-        return DownloadedFile(file_data=file_data, file_name=meeting.file_name)
+        data = await self._file_storage.download_file(key=file_metadata.key, bucket=bucket)
+        return File(data=data, file_name=file_metadata.key)
 
-    async def delete(self, meeting_id: UUID) -> bool:
-        meeting = await self._meeting_repository.read(meeting_id)
-        if not meeting:
+    async def remove(self, id: UUID, bucket) -> bool:
+        file_metadata = await self._file_metadata_repository.read(id)
+        if not file_metadata:
             return False
-        is_deleted = await self._meeting_repository.delete(meeting_id)
-        await self._file_storage.delete_file(
-            file_name=meeting.file_name,
-            bucket_name=MEETING_BUCKET_NAME
-        )
+        is_deleted = await self._file_metadata_repository.delete(id)
+        await self._file_storage.remove_file(key=file_metadata.key, bucket=bucket)
         return is_deleted

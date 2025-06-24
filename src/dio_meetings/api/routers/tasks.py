@@ -2,10 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, status, HTTPException
 
-from dishka.integrations.fastapi import DishkaRoute, FromDishka
+from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
+from ...core.domain import Task
 from ...core.services import TaskService
-from ...core.dto import CreatedTask
 
 from ..schemas import TaskCreateSchema
 
@@ -20,12 +20,9 @@ tasks_router = APIRouter(
 @tasks_router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=CreatedTask
+    response_model=Task
 )
-async def create_task(
-        task_create: TaskCreateSchema,
-        task_service: FromDishka[TaskService]
-) -> CreatedTask:
+async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskService]) -> Task:
     created_task = await task_service.create(task_create.meeting_id)
     if not created_task:
         raise HTTPException(
@@ -38,9 +35,9 @@ async def create_task(
 @tasks_router.get(
     path="/{task_id}",
     status_code=status.HTTP_200_OK,
-    response_model=CreatedTask
+    response_model=Task
 )
-async def get_task_status(task_id: UUID, task_service: FromDishka[TaskService]) -> CreatedTask:
+async def get_task_status(task_id: UUID, task_service: Depends[TaskService]) -> Task:
     task = await task_service.get_status(task_id)
     if not task:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")

@@ -31,20 +31,18 @@ SPEAKERS_COUNT = 6
 BUCKET_NAME = "meeting-protocols"
 
 
-# Поддерживаемые форматы аудио:
-SUPPORTED_AUDIO_FORMATS = [
+# Поддерживаемые форматы файлов:
+AUDIO_FORMATS = [
     "mp3",
-    "ogg"
+    "ogg",
+    "pcm"
 ]
-
-# Статусы выполнения задачи:
-TASK_STATUS = Literal[
-    "NEW",
-    "RUNNING",
-    "DONE",
-    "ERROR"
+DOCUMENT_FORMATS = [
+    "doc",
+    "docx",
+    "pdf"
 ]
 
 # Имена s3 бакетов для хранения объектов:
-MEETING_BUCKET_NAME = "meetings"
-RESULT_BUCKET_NAME = "results"
+AUDIO_BUCKET = "audio"
+DOCUMENTS_BUCKET = "documents"

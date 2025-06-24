@@ -17,14 +17,14 @@ class SaluteSpeech(BaseSTT):
         self._salute_speech_api = SaluteSpeechAPI(api_key=api_key, scope=scope)
         self._async_timeout = async_timeout
 
-    async def transcript(
+    async def transcribe(
             self,
-            audio_file: bytes,
+            audio_data: bytes,
             audio_format: str,
             speakers_count: int
     ) -> list[Transcription]:
         request_file_id = await self._salute_speech_api.upload_file(
-            audio_file=audio_file,
+            audio_file=audio_data,
             file_format=audio_format
         )
         task_result = await self._salute_speech_api.async_recognize(

@@ -7,8 +7,8 @@ import logging
 from aiobotocore.session import get_session
 from aiobotocore.client import AioBaseClient
 
-from src.dio_meetings.core.base import FileStorage
-from src.dio_meetings.core.exceptions import FileStoreError, UploadingError, DownloadingError
+from ..core.base import FileStorage
+from ..core.exceptions import FileStoreError, UploadingError, DownloadingError
 
 
 SERVICE_NAME = "s3"
@@ -73,7 +73,7 @@ class S3Client(FileStorage):
             self.logger.error(f"Error while receiving file: {e}")
             raise DownloadingError(f"Error while receiving file: {e}") from e
 
-    async def delete_file(self, file_name: str, bucket_name: str) -> str:
+    async def remove_file(self, file_name: str, bucket_name: str) -> str:
         try:
             async with self._get_client() as client:
                 await client.delete_object(Bucket=bucket_name, Key=file_name)

@@ -5,32 +5,53 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict
 
-from ..constants import TASK_STATUS
+from .enums import FileType, TaskStatus
+
+from ..constants import AUDIO_FORMATS, DOCUMENT_FORMATS
 
 
-class Meeting(BaseModel):
-    meeting_id: UUID     # Уникальный ID встречи
-    name: str            # Название встречи
-    audio_format: str    # Формат аудио файла
-    duration: float      # Продолжительность в секундах
-    speakers_count: int  # Количество участников
-    file_name: str       # Ключ к файлу из s3 хранилища, в формате [uuid].[audio_format]
-    date: datetime       # Дата встречи
+class File(BaseModel):
+    data: bytes
+    file_name: str
+
+    @property
+    def size(self) -> float:
+        return round(len(self.data) / (1024 * 1024), 2)
+
+    @property
+    def format(self) -> str:
+        return self.file_name.split(".")[-1]
+
+    @property
+    def type(self) -> FileType:
+        if self.format in AUDIO_FORMATS:
+            return FileType.AUDIO
+        elif self.format in DOCUMENT_FORMATS:
+            return FileType.DOCUMENT
+        else:
+            raise ValueError("Unsupported file format")
+
+
+class FileMetadata(BaseModel):
+    id: Optional[UUID] = None    # ID файла
+    title: Optional[str] = None  # Заголовок / тема файла
+    key: str                     # Ссылка на S3
+    bucket: str                  # Имя бакета в S3
+    size: int                    # Размер в МБ
+    format: str                  # Формат файла / расширение
+    type: FileType               # Тип файла
+    uploaded_date: datetime      # Дата загрузки
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class Task(BaseModel):
-    task_id: UUID
-    meeting_id: UUID
-    status: TASK_STATUS  # Статус выполнения задачи
-    result_id: Optional[UUID] = None
+    id: Optional[UUID] = None         # ID задачи
+    file_id: UUID                     # Файл для распознавания
+    status: TaskStatus                # Статус выполнения задачи
+    result_id: Optional[UUID] = None  # ID сформированного файла
 
-    model_config = ConfigDict(from_attributes=True)
-
-
-class Result(BaseModel):
-    result_id: UUID
-    file_name: str
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)

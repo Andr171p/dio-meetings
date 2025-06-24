@@ -6,15 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from faststream.redis import RedisBroker
 
-from .core.services import SummarizationService, TaskService, MeetingService
+from .core.services import SummarizationService, TaskService, FileService
 from .core.base import (
     BaseLLM,
     BaseSTT,
     DocumentFactory,
     FileStorage,
-    MeetingRepository,
     TaskRepository,
-    ResultRepository
+    FileMetadataRepository
 )
 
 from .infrastructure.documents import MicrosoftWordFactory
@@ -24,8 +23,7 @@ from src.dio_meetings.infrastructure.s3 import S3Client
 from .infrastructure.database.session import create_session_maker
 from src.dio_meetings.infrastructure.database.repositories import (
     SQLTaskRepository,
-    SQLMeetingRepository,
-    SQLResultRepository
+    SQLFileMetadataRepository
 )
 
 from .settings import Settings
@@ -77,39 +75,24 @@ class AppProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_meeting_repository(self, session: AsyncSession) -> MeetingRepository:
-        return SQLMeetingRepository(session)
-
-    @provide(scope=Scope.REQUEST)
     def get_task_repository(self, session: AsyncSession) -> TaskRepository:
         return SQLTaskRepository(session)
 
     @provide(scope=Scope.REQUEST)
-    def get_result_repository(self, session: AsyncSession) -> ResultRepository:
-        return SQLResultRepository(session)
-
-    @provide(scope=Scope.REQUEST)
-    def get_meeting_service(
-            self,
-            meetings_repository: MeetingRepository,
-            file_storage: FileStorage
-    ) -> MeetingService:
-        return MeetingService(
-            meeting_repository=meetings_repository,
-            file_storage=file_storage
-        )
+    def get_file_metadata_repository(self, session: AsyncSession) -> FileMetadataRepository:
+        return SQLFileMetadataRepository(session)
 
     @provide(scope=Scope.REQUEST)
     def get_task_service(
             self,
             task_repository: TaskRepository,
-            result_repository: ResultRepository,
+            file_metadata_repository: FileMetadataRepository,
             file_storage: FileStorage,
             broker: RedisBroker
     ) -> TaskService:
         return TaskService(
             task_repository=task_repository,
-            result_repository=result_repository,
+            file_metadata_repository=file_metadata_repository,
             file_storage=file_storage,
             broker=broker
         )
@@ -125,6 +108,17 @@ class AppProvider(Provider):
             stt=stt,
             llm=llm,
             document_factory=document_factory
+        )
+
+    @provide(scope=Scope.REQUEST)
+    def get_file_service(
+            self,
+            file_metadata_repository: FileMetadataRepository,
+            file_storage: FileStorage
+    ) -> FileService:
+        return FileService(
+            file_metadata_repository=file_metadata_repository,
+            file_storage=file_storage
         )
 
 

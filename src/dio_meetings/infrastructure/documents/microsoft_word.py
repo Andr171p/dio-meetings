@@ -12,8 +12,9 @@ from docx.shared import Pt
 from docx import Document as WordDocument
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 
-from ...core.dto import Document
+from ...core.domain import File
 from ...core.base import DocumentFactory
+from ...utils import generate_file_name
 
 
 PARAGRAPH_LINE = 50
@@ -31,14 +32,14 @@ class MicrosoftWordFactory(DocumentFactory):
     def random_file_name(self) -> str:
         return f"{uuid4()}.docx"
 
-    def create_document(self, text: str) -> Document:
+    def create_document(self, text: str) -> File:
         self._build_document(text)
         file_buffer = io.BytesIO()
         self.document.save(file_buffer)
         file_buffer.seek(0)
-        return Document.from_bytes_io(
-            file_buffer=file_buffer,
-            file_format="docx"
+        return File(
+            data=file_buffer.getvalue(),
+            file_name=generate_file_name("docx")
         )
 
     def _build_document(self, text: str) -> None:

@@ -4,30 +4,28 @@ from faststream.redis import RedisRouter
 from dishka.integrations.base import FromDishka
 
 from ...core.domain import Task
-from ...utils import get_file_format
 from ...constants import SPEAKERS_COUNT
 from ...templates import SUMMARY_TEMPLATE
-from ...core.services import TaskService, SummarizationService, MeetingService
+from ...core.services import TaskService, SummarizationService, FileService
 
 
-meetings_router = RedisRouter()
+tasks_router = RedisRouter()
 
 
-@meetings_router.subscriber("tasks")
-async def summarize_meeting(
+@tasks_router.subscriber("tasks")
+async def summarize_audio(
         task: Task,
-        meeting_service: FromDishka[MeetingService],
+        file_service: FromDishka[FileService],
         summarization_service: FromDishka[SummarizationService],
         task_service: FromDishka[TaskService],
         logger: Logger
 ) -> None:
     logger.info("Start summarize meeting")
-    downloaded_file = await meeting_service.download(task.meeting_id)
+    downloaded_file = await file_service.download(task.file_id, bucket="audio")
     document = await summarization_service.summarize(
-        audio_file=downloaded_file.file_data,
-        audio_format=get_file_format(downloaded_file.file_name),
+        audio=downloaded_file,
         speakers_count=SPEAKERS_COUNT,
         prompt_template=SUMMARY_TEMPLATE
     )
-    logger.info("Finished summarizing meeting")
     await task_service.update_status(task_id=task.task_id, document=document)
+    logger.info("Finished summarizing meeting")

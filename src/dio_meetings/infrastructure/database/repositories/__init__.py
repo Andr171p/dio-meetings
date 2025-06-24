@@ -1,9 +1,7 @@
 __all__ = (
     "SQLTaskRepository",
-    "SQLResultRepository",
-    "SQLMeetingRepository"
+    "SQLFileMetadataRepository"
 )
 
 from .task import SQLTaskRepository
-from .result import SQLResultRepository
-from .meeting import SQLMeetingRepository
+from .file_metadata import SQLFileMetadataRepository
