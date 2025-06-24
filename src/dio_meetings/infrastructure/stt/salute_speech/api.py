@@ -213,7 +213,8 @@ class SaluteSpeechAPI(SberDevicesAPI):
                 ) as response:
                     data = await response.json()
             if data["status"] != STATUS_200_OK:
-                raise TaskError(f"Task Error. Status: {data["status"]}")
+                status = data["status"]
+                raise TaskError(f"Task Error. Status: {status}")
             if data["result"].get("response_file_id"):
                 return FinishedTaskResult.model_validate(data["result"])
             return TaskResult.model_validate(data["result"])
