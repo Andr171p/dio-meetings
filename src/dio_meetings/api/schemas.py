@@ -4,4 +4,4 @@ from pydantic import BaseModel
 
 
 class TaskCreateSchema(BaseModel):
-    meeting_id: UUID
+    file_id: UUID

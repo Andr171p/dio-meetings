@@ -23,7 +23,7 @@ tasks_router = APIRouter(
     response_model=Task
 )
 async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskService]) -> Task:
-    created_task = await task_service.create(task_create.meeting_id)
+    created_task = await task_service.create(task_create.file_id)
     if not created_task:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

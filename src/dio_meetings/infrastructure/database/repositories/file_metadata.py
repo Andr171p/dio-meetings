@@ -65,7 +65,7 @@ class SQLFileMetadataRepository(FileMetadataRepository):
             )
             result = await self.session.execute(stmt)
             await self.session.commit()
-            return result.rowcount() > 0
+            return result.rowcount > 0
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise DeletingError(f"Error while deleting meeting: {e}") from e
