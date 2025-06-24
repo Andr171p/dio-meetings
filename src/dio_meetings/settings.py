@@ -26,8 +26,10 @@ class MiniOSettings(BaseSettings):
 
 
 class PostgresSettings(BaseSettings):
-    PG_HOST: str = os.getenv("POSTGRES_HOST")
-    PG_PORT: int = os.getenv("POSTGRES_PORT")
+    # PG_HOST: str = os.getenv("POSTGRES_HOST")
+    PG_HOST: str = "10.1.50.109"
+    # PG_PORT: int = os.getenv("POSTGRES_PORT")
+    PG_PORT: int = 5433
     PG_USER: str = os.getenv("POSTGRES_USER")
     PG_PASSWORD: str = os.getenv("POSTGRES_PASSWORD")
     PG_DB: str = os.getenv("POSTGRES_DB")

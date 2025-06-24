@@ -8,7 +8,8 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from src.dio_meetings.infrastructure.database.base import Base
-from src.dio_meetings.infrastructure.database.models import MeetingOrm, TaskOrm, ResultOrm
+
+from src.dio_meetings.infrastructure.database.models import FileMetadataOrm, TaskOrm
 
 from src.dio_meetings.settings import PostgresSettings
 
