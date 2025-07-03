@@ -7,12 +7,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from faststream.redis import RedisBroker
 
 from .core.services import SummarizationService, TaskService, FileService
+from .core.domain import Task
 from .core.base import (
     BaseLLM,
     BaseSTT,
     DocumentFactory,
     FileStorage,
-    TaskRepository,
+    CRUDRepository,
     FileMetadataRepository
 )
 
@@ -75,7 +76,7 @@ class AppProvider(Provider):
         )
 
     @provide(scope=Scope.REQUEST)
-    def get_task_repository(self, session: AsyncSession) -> TaskRepository:
+    def get_task_repository(self, session: AsyncSession) -> CRUDRepository[Task]:
         return SQLTaskRepository(session)
 
     @provide(scope=Scope.REQUEST)
@@ -85,7 +86,7 @@ class AppProvider(Provider):
     @provide(scope=Scope.REQUEST)
     def get_task_service(
             self,
-            task_repository: TaskRepository,
+            task_repository: CRUDRepository[Task],
             file_metadata_repository: FileMetadataRepository,
             file_storage: FileStorage,
             broker: RedisBroker

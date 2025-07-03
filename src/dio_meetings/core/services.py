@@ -12,7 +12,7 @@ from .base import (
     BaseBroker,
     DocumentFactory,
     FileStorage,
-    TaskRepository,
+    CRUDRepository,
     FileMetadataRepository
 )
 from .exceptions import (
@@ -60,7 +60,7 @@ class SummarizationService:
 class TaskService:
     def __init__(
             self,
-            task_repository: TaskRepository,
+            task_repository: CRUDRepository[Task],
             file_metadata_repository: FileMetadataRepository,
             file_storage: FileStorage,
             broker: BaseBroker
@@ -142,7 +142,7 @@ class FileService:
         data = await self._file_storage.download_file(key=file_metadata.key, bucket=bucket)
         return File(data=data, file_name=file_metadata.key)
 
-    async def remove(self, id: UUID, bucket) -> bool:
+    async def remove(self, id: UUID, bucket: str) -> bool:
         file_metadata = await self._file_metadata_repository.read(id)
         if not file_metadata:
             return False
