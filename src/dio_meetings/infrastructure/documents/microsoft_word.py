@@ -1,7 +1,6 @@
 from typing import Union
 
 import io
-from uuid import uuid4
 
 import markdown
 
@@ -27,10 +26,6 @@ SoupElement = Union[BeautifulSoup, PageElement, Tag, NavigableString]
 class MicrosoftWordFactory(DocumentFactory):
     def __init__(self) -> None:
         self.document = WordDocument()
-
-    @property
-    def random_file_name(self) -> str:
-        return f"{uuid4()}.docx"
 
     def create_document(self, text: str) -> File:
         self._build_document(text)
