@@ -2,7 +2,7 @@ from typing import Annotated
 
 from uuid import UUID
 
-from fastapi import APIRouter, status, HTTPException, UploadFile, File
+from fastapi import APIRouter, status, HTTPException, UploadFile, File, Query
 from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
@@ -99,3 +99,15 @@ async def get_audio_list(
     if not files_metadata:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No files yet")
     return files_metadata
+
+
+@audio_router.get(
+    path="/",
+    status_code=status.HTTP_200_OK,
+    response_model=list[FileMetadata]
+)
+async def filter_audio_by_date(
+        date: Query(..., description=""),
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> list[FileMetadata]:
+    ...

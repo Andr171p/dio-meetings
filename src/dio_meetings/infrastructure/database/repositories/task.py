@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..models import TaskOrm
 
 from src.dio_meetings.core.domain import Task
-from src.dio_meetings.core.base import TaskRepository
+from src.dio_meetings.core.base import CRUDRepository
 from src.dio_meetings.core.exceptions import (
     CreationError,
     ReadingError,
@@ -18,7 +18,7 @@ from src.dio_meetings.core.exceptions import (
 )
 
 
-class SQLTaskRepository(TaskRepository):
+class SQLTaskRepository(CRUDRepository[Task]):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
