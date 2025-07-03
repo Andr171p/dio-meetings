@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import FileMetadataOrm
 
+from src.dio_meetings.core.enums import FileType
 from src.dio_meetings.core.domain import FileMetadata
 from src.dio_meetings.core.base import FileMetadataRepository, Mode
 from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
@@ -89,13 +90,13 @@ class SQLFileMetadataRepository(FileMetadataRepository):
     async def filter_by_date(
             self,
             date: datetime,
-            bucket: Optional[str] = None,
+            type: Optional[FileType] = None,
             mode: Mode = "after"
     ) -> list[FileMetadata]:
         try:
             stmt = select(FileMetadataOrm)
-            if bucket:
-                stmt = stmt.where(FileMetadataOrm.bucket == bucket)
+            if type:
+                stmt = stmt.where(FileMetadataOrm.type == type)
             if mode == "before":
                 stmt = (
                     stmt

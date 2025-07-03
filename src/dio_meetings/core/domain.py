@@ -34,7 +34,7 @@ class File(BaseModel):
 
 class FileMetadata(BaseModel):
     id: Optional[UUID] = None    # ID файла
-    title: Optional[str] = None  # Заголовок / тема файла
+    file_name: str               # Имя файла
     key: str                     # Ссылка на S3
     bucket: str                  # Имя бакета в S3
     size: float                  # Размер в МБ

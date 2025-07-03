@@ -5,10 +5,11 @@ from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
-from ..schemas import AudioFile, Date, Bucket, Mode
+from ..schemas import AudioFile, Date, Mode
 
 from ...core.base import FileMetadataRepository
 from ...core.services import FileService
+from ...core.enums import FileType
 from ...core.domain import FileMetadata, File
 from ...core.exceptions import (
     CreationError,
@@ -139,13 +140,12 @@ async def get_audio(
 )
 async def filter_audio_by_date(
         date: Date,
-        bucket: Bucket,
         mode: Mode,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
     try:
         files_metadata = await file_metadata_repository.filter_by_date(
-            date=date, bucket=bucket, mode=mode
+            date=date, type=FileType.AUDIO, mode=mode
         )
         return files_metadata
     except ReadingError:

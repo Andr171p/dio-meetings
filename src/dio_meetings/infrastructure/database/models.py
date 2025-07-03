@@ -11,6 +11,7 @@ from .base import Base
 class FileMetadataOrm(Base):
     __tablename__ = "file_metadata"
 
+    file_name: Mapped[str]
     key: Mapped[str]
     bucket: Mapped[str]
     size: Mapped[float]

@@ -2,234 +2,369 @@
 
 ## REST API
 
-## Meetings
+## Основные сущности
 
-Ресурс для работы с аудио записями встреч / совещаний.
+ * ### <b>FileMetadata</b>
 
-### Базовый url `/api/v1/meetings`
+Метаданные файла загруженного или сформированного файла.
 
- * ### POST `/upload`
-  
-   Метод для загрузки аудио записи встречи.</br></br>
+```json
+{
+  "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "file_name": "string",
+  "key": "string",
+  "bucket": "string",
+  "size": 0.00,
+  "format": "string",
+  "type": "string",
+  "uploaded_date": "2025-06-10T11:03:28.263849"
+}
+```
+ * <b>id</b> - Уникальный ID файла в формате UUID4, присваивается при создании.
+ * <b>file_name</b> - Имя файла.
+ * <b>key</b> - Ключ / имя файла в S3 хранилище.
+ * <b>bucket</b> - 'Бакет' (коллекция) в S3 хранилище.
+ * <b>size</b> - Размер файла в МБ.
+ * <b>format</b> - Формат / расширение файла.
+ * <b>type</b> - Тип файла. Разрешённые типы файлов:
+    - AUDIO (.mp3, .ogg, .pcm, .wav)
+    - DOCUMENT (.docx, .pdf, .doc)
+ * <b>uploaded_date</b> - Дата загрузки файла.
 
-   <b>Request body</b>:</br>
-  
-   Headers: ```multipart/form-data```</br>
 
-   Parameters:
-    - <b>name</b>: "string" - Тема/Название встречи
-    - <b>speakers_count</b>: integer - количество активных спикеров
-   
-   Data: bytes</br></br>
+ * ### <b>Task</b>
 
-   <b>Response body</b>:</br>
-    - <b>Code 201 Created</br>
-   Header: ```application/json```</br>
-   JSON
-   ```json
-   {
-     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
-     "name": "Телефонный разговор",
-     "audio_format": "mp3",
-     "duration": 618.6,
-     "speakers_count": 2,
-     "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
-     "date": "2025-06-10T16:03:25.923236",
-     "created_at": "2025-06-10T11:03:28.263849"
-   }
-   ```
-   * <b>meeting_id</b> - Уникальный ID совещания в формате uuid (генерируется при создании ресурса).
-   * <b>name</b> - Название совещания.
-   * <b>audio_format</b> - Формат загруженного аудио файла.
-     - <b>mp3</b>
-     - <b>ogg</b>
-     - <b>pcm</b>
-     - <b>fcal</b>
-   * <b>duration</b> - Продолжительность аудио записи в секундах.
-   * <b>speakers_count</b> - Количество говорящих на записи.
-   * <b>file_name</b> - Имя файла в S3 в формате {meeting_id}.{audio_format}.
-   * <b>date</b> - Дата проведения совещания.
-   * <b>created_at</b> - Дата создания ресурса.
+Задача на генерацию протокола совещания.
 
- * ### GET `/{meeting_id}/download`
-   Метод для загрузки аудио записи встреч.</br></br>
-   
-   <b>Request Body</b>:</br>
-   Parameters: 
-     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8" - Строка в формате UUID.</br>
-   
-   <b>Response Body</b>:</br>
-    * <b>Code 200 OK</b></br>
-       - Media-type: `"audio/mpeg"`</br>
-       - Headers: ```"Content-Disposition": f"attachment; filename={}"```</br>
-       - Data: bytes
-    * <b>Code 404 Not found</b></br>
-       JSON:
-       ```json
-       {"detail": "Meeting not found"}
-       ```
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "file_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "status": "string",
+  "result_id": null,
+  "created_at": "2025-06-10T11:03:28.263849",
+  "updated_at": "2025-06-10T11:03:28.263849"
+}
+```
 
-* ### DELETE `/{meetings_id}`
-  Метод для удаления совещания.</br></br>
-  
-  <b>Request Body</b>:</br>
-  Parameters: 
-    - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"</br></br>
-  
-  <b>Response Body</b>:</br>
-  * <b>Code 204 No content</b> - Успешное удаление</br>
-  * <b>Code 404 Not found</b>
-    JSON
-    ```json
-    {"detail":  "Meeting not found"}
-    ```
+ * <b>id</b> - Уникальный ID задачи в формате UUID4, присваивается при создании.
+ * <b>file_id</b> - ID аудио записи совещания.
+ * <b>status</b> - Статус выполнения задачи:
+   - NEW - Новая задача (после создания задачи).
+   - RUNNING - Задача выполняется.
+   - DONE - Задача успешно завершена.
+   - ERROR - Задача остановилась из-за ошибки.
+ * <b>result_id</b> - ID сформированного протокола совещания в формате UUID4 (Приходит вместе с статусом DONE).
+ * <b>created_at</b> - Дата и время создания задачи.
+ * <b>updated_at</b>-  Дата обновления статуса задачи.
 
-* ### GET `/{meeting_id}`
-  Метод для получения метаданных совещания.
-  
-  <b>Request Body</b>:</br>
-  Parameters:
-     - <b>meeting_id</b>: "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8" - Уникальный ID совещания получаемый при создании ресурса.
-  
-  <b>Response body</b>:</br>
-  * <b>Code 200 OK</b>
-    JSON
-     ```json
-     {
-       "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
-       "name": "Телефонный разговор",
-       "audio_format": "mp3",
-       "duration": 618.6,
-       "speakers_count": 2,
-       "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
-       "date": "2025-06-10T16:03:25.923236",
-       "created_at": "2025-06-10T11:03:28.263849"
-     }
-     ```
-  * <b>Code 404 Not found</b>
-    JSON
-    ```json
-    {"detail": "Meeting not found"}
-    ```
-    
- * ### GET `/`
- 
-    Метод для получения списка всех метаданных совещаний.
-    
-    <b>Response Body</b>:</br>
-     -  <b>Code 200 OK</b></br>
-     JSON</br>
-     ```json
-     [
-       {
-         "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
-         "name": "Телефонный разговор",
-         "audio_format": "mp3",
-         "duration": 618.6,
-         "speakers_count": 2,
-         "file_name": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8.mp3",
-         "date": "2025-06-10T16:03:25.923236",
-         "created_at": "2025-06-10T11:03:28.263849"
-       }
-     ]
-     ```
-      - <b>Code 404 Not found</b></br>
-      JSON</br>
-      ```json
-      {"detail":  "No meetings yet"}
-      ```
-       
+## Ресурсы
 
-## Tasks
+ * ### `/api/v1/audio`
+   Работа с аудио записями совещания.
+ * ### `/api/v1/tasks`
+   Создание и получения статусов задач
+ * ### `/api/v1/documents`
+   Работа со сформированными протоколами совещаний
 
-Ресурс для создания и работы с задачами на генерацию протоколов совещаний.
+## Методы `/api/v1/audio`
 
-### Базовый url `/api/v1/tasks`
+ * ### <b>POST</b> `/upload`
+
+Загружает аудио запись совещания.
+
+<b>Request</b><sup>required</sup>
+
+ * Content-type: `multipart/form-data`
+ * Body:
+   -  audio_file: Аудио файл для загрузки.
+
+<b>Responses</b>
+
+| Статус код | Описание                        |
+|------------|---------------------------------|
+ | 201        | Успешная загрузка аудио файла   |
+| 500        | Ошибка при загрузке аудио файла |
+
+ * Body (201 CREATED):
+```json
+{
+  "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "file_name": "string",
+  "key": "string",
+  "bucket": "string",
+  "size": 0.00,
+  "format": "mp3",
+  "type": "AUDIO",
+  "uploaded_date": "2025-06-10T11:03:28.263849"
+}
+```
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail": "UPLOADING_ERROR"}
+```
+
+<b>Пример запроса</b>
+
+```bash
+curl -X POST "http://your-api-domain.com/api/v1/audio/upload" \
+  -H "Content-type: multipart/form-data" \
+  -F "audio_file=@meeting_recording.mp3"
+```
+
+ * ### GET `/{file_id}/download`
+
+Скачивает аудио запись совещания.
+
+<b>Parameters</b>
+
+| Имя     | Тип  | Описание       |
+|---------|------|----------------|
+| file_id | UUID | ID аудио файла |
+
+<b>Responses</b>
+
+| Статус код | Описание                          |
+|------------|-----------------------------------|
+| 200        | Успешное скачивание аудио файла   |
+| 404        | Аудио файл не найден              |
+| 500        | Ошибка при скачивании аудио файла |
+
+<b>Пример запроса</b>
+
+```bash
+curl -X GET "http://your-api-domain.com/api/v1/audio/123e4567-e89b-12d3-a456-426614174000/download" \
+  --output meeting_recording.mp3
+```
+
+ * ### DELETE `/{file_id}`
+
+Удаляет аудио запись совещания.
+
+<b>Parameters</b><sup>required</sup>
+
+| Имя     | Тип  | Описание       |
+|---------|------|----------------|
+| file_id | UUID | ID аудио файла |
+
+<b>Responses</b>
+
+| Статус код | Описание                        |
+|------------|---------------------------------|
+| 204        | Успешное удаление аудио файла   |
+| 404        | Аудио файл не найден            |
+| 500        | Ошибка при удалении аудио файла |
+
+<b>Пример запроса</b>
+
+```bash
+curl -X DELETE "http://your-api-domain.com/api/v1/audio/123e4567-e89b-12d3-a456-426614174000"
+```
+
+
+ * ### GET `/{file_id}`
+
+Получает метаданные аудио файла.
+
+<b>Parameters</b><sup>required</sup>
+
+| Имя     | Тип  | Описание       |
+|---------|------|----------------|
+| file_id | UUID | ID аудио файла |
+
+<b>Responses</b>
+
+| Статус код | Описание                                  |
+|------------|-------------------------------------------|
+| 200        | Успешное получение метаданных аудио файла |
+| 404        | Аудио файл не найден                      |
+| 500        | Ошибка при получении метаданных           |
+
+ * Body (200 OK)
+
+```json
+{
+  "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "file_name": "string",
+  "key": "string",
+  "bucket": "string",
+  "size": 0.00,
+  "format": "mp3",
+  "type": "AUDIO",
+  "uploaded_date": "2025-06-10T11:03:28.263849"
+}
+```
+
+ * Body (404 NOT FOUND)
+
+```json
+{"detail": "NOT_FOUND"}
+```
+
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail": "RECEIVING_ERROR"}
+```
+
+ * ### GET `/?date={date}&mode={mode}`
+
+Фильтрует загруженные аудио файлы по выбранной дате.
+
+<b>Query Parameters</b><sup>required</sup>
+
+| Имя  | Тип      | Описание                                    |
+|------|----------|---------------------------------------------|
+| date | datetime | Дата для фильтрации в формате (YYYY-MM-DD). |
+| mode | string   | "after" после указанной даты, "before" до.  |
+
+<b>Responses</b>
+
+| Статус код | Описание                          |
+|------------|-----------------------------------|
+| 200        | Аудио файлы успешно отфильтрованы |
+| 500        | Ошибка при фильтрации             |
+
+* Body (200 OK)
+
+```json
+[
+  {
+    "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+    "file_name": "string",
+    "key": "string",
+    "bucket": "string",
+    "size": 0.00,
+    "format": "mp3",
+    "type": "AUDIO",
+    "uploaded_date": "2025-06-10T11:03:28.263849"
+  }
+]
+```
+
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail": "RECEIVING_ERROR"}
+```
+
+<b>Пример запроса</b>
+
+```bash
+curl -X GET "http://your-api-domain.com/api/v1/audio/?date=2023-01-01&mode=after"
+```
+
+
+## Методы `/api/v1/tasks`
 
  * ### POST `/`
 
-   Метод для создания задачи на генерацию протокола совещания.</br></br>
+Создаёт задачу на генерацию протокола совещания.
 
-   <b>Request Body</b>:</br>
-   Headers: ```application/json```</br>
-   JSON
-   ```json
-   {
-     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"
-   }
-   ```
-    
-   <b>Response Body</b>:</br>
-    - <b>Code 201 Created</b></br>
-   Header: ```application/json```</br>
-   JSON
-   ```json
-   {
-      "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
-      "status": "NEW",
-      "result_id": null,
-      "created_at": "2025-06-09T05:16:38.409Z",
-      "updated_at": "2025-06-10T11:07:35.961789"
-   }
-   ```
-   * <b>task_id</b> - Уникальный ID задачи, создаётся при создании ресурса.
-   * <b>meeting_id</b> - ID совещания для которого выполняется задача.
-   * <b>status</b> - Статус выполнения задачи:
-      - <b>NEW</b> - Новая задача. Этот статус можно получить только при создании ресурса.
-      - <b>RUNNING</b> - Задача в процессе выполнения.
-      - <b>DONE</b> - Задача успешно выполнена. В теле ответа в поле result_id будет ID протокола совещания.
-      - <b>ERROR</b> - Задача завершилась с ошибкой.
-   * <b>result_id</b> - ID составленного протокола, приходит только когда status DONE.
-   * <b>created_at</b> - Дата и время создания задачи.
-   * <b>updated_at</b> - Дата обновления статуса задачи.
+<b>Request</b><sup>required</sup>
+
+ * Content-type: `application/json`
+ * Body:
+
+```json
+{"file_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8"}
+```
+
+<b>file_id</b> - ID аудио файла для которого нужно сделать протокол совещания.
+
+<b>Responses</b>
+
+| Статус код | Описание                   |
+|------------|----------------------------|
+| 200        | Успешное создание задачи   |
+| 500        | Ошибка при создании задачи |
+
+ * Body (200 OK)
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "file_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "status": "NEW",
+  "result_id": null,
+  "created_at": "2025-06-10T11:03:28.263849",
+  "updated_at": "2025-06-10T11:03:28.263849"
+}
+```
+
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail": "NOR_CREATED"}
+```
 
  * ### GET `/{task_id}`
 
-   Метод для получения статуса задачи.</br></br>
-   
-   <b>Request Body</b>:</br>
-   Parameters: 
-     - task_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"</br></br>
-   
-   <b>Response Body</b>:</br>
-     - <b>Code 200 OK</b></br>
-   Header: ```application/json```
-   JSON
-   ```json
-   {
-     "task_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-     "meeting_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
-     "status": "RUNNING",
-     "result_id": null,
-     "created_at": "2025-06-09T05:28:30.051Z",
-     "updated_at": "2025-06-10T11:07:35.961789"
-   }
-   ```
-     - <b>Code 404 Not found</b>
-     ```json
-     {"detail": "Task not found"}
-     ```
+Получает статус текущей задачи.
 
-## Results
+<b>Parameters</b>
 
-Ресурс для получения результатов выполненных задач.
+| Имя     | Тип  | Описание                                   |
+|---------|------|--------------------------------------------|
+| task_id | UUID | ID задачи, присваивается после её создания |
 
-### Базовый url `/api/v1/results`
 
-* ### GET `/{results_id}/download`
-  Метод для скачивания документа с протоколом совещания.
-  
-  <b>Request Body</b>:</br>
-  Parameters:
-    - <b>result_id</b>: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+<b>Responses</b>
 
-  <b>Response Body</b>:</br>
-     - <b>Code 200 OK</b> - Возвращает .docx файл.</br>
-     Media type: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`<br>
-     Headers: `"Content-Disposition": f"attachment; filename={filename}"`
-     - <b>Code 404 Not found</b></br>
-       JSON
-       ```json
-       {"detail": "Result not found"}
-       ```
+| Статус код | Описание                          |
+|------------|-----------------------------------|
+| 200        | Успешное получение статуса задачи |
+| 404        | Задача не найдена                 |
+
+ * Body (200 OK)
+
+```json
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "file_id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+  "status": "RUNNING",
+  "result_id": null,
+  "created_at": "2025-06-10T11:03:28.263849",
+  "updated_at": "2025-06-10T11:03:28.263849"
+}
+```
+
+ * Body (404)
+
+```json
+{"detail": "NOT_FOUND"}
+```
+
+
+## Методы `/api/v1/documents`
+
+ * ### GET  `/{result_id}/download`
+
+Скачивает сформированный протокол совещания.
+
+<b>Parameters</b>
+
+| Имя       | Тип  | Описание                     |
+|-----------|------|------------------------------|
+| result_id | UUID | ID сформированного протокола |
+
+<b>Responses</b>
+
+| Статус код | Описание                      |
+|------------|-------------------------------|
+| 200        | Успешное скачивание документа |
+| 404        | Документ не найден            |
+
+<b>Headers</b>
+
+ * Content-Type: `application/vnd.openxmlformats-officedocument.wordprocessingml.document`
+ * Content-Disposition: `attachment; filename*=UTF-8''{Имя файла}`
+ * Content-Length: Длина контента файла.
+
+<b>Пример запроса</b>
+
+```bash
+curl -X GET "http://your-api-domain.com/api/v1/documents/123e4567-e89b-12d3-a456-426614174000/download" \
+  - OJ
+```

@@ -1,4 +1,4 @@
-from typing import Annotated, Optional
+from typing import Annotated
 
 from uuid import UUID
 from datetime import datetime
@@ -22,15 +22,6 @@ Date = Annotated[
     )
 ]
 
-Bucket = Annotated[
-    Optional[str],
-    Query(
-        None,
-        description="Название бакета",
-        examples=["audio", "documents"]
-    )
-]
-
 Mode = Annotated[
     FilterMode,
     Query(
@@ -40,6 +31,7 @@ Mode = Annotated[
 ]
 
 Page = Annotated[int, Query(START_PAGE, description="Страница с метаданными")]
+
 Limit = Annotated[int, Query(DEFAULT_LIMIT, description="Лимит метаданных на одной странице")]
 
 

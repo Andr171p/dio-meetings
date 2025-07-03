@@ -6,6 +6,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from .enums import FileType
 from .domain import FileMetadata, File
 from .dto import BaseMessage, AIMessage, Transcription
 
@@ -63,13 +64,13 @@ class FileMetadataRepository(CRUDRepository[FileMetadata]):
     async def filter_by_date(
             self,
             date: datetime,
-            bucket: Optional[str] = None,
+            type: Optional[FileType] = None,
             mode: Mode = "after"
     ) -> list[FileMetadata]: pass
 
     async def paginate(self, page: int, limit: int) -> list[FileMetadata]: pass
 
-    async def count(self, bucket: Optional[str] = None) -> int: pass
+    async def count(self, type: Optional[FileType] = None) -> int: pass
 
 
 class BaseBroker(Protocol):

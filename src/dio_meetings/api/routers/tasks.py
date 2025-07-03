@@ -21,7 +21,8 @@ tasks_router = APIRouter(
 @tasks_router.post(
     path="/",
     status_code=status.HTTP_201_CREATED,
-    response_model=Task
+    response_model=Task,
+    summary="Создаёт задачу на генерацию протокола совещания."
 )
 async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskService]) -> Task:
     created_task = await task_service.create(task_create.file_id)
@@ -36,7 +37,8 @@ async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskS
 @tasks_router.get(
     path="/{task_id}",
     status_code=status.HTTP_200_OK,
-    response_model=Task
+    response_model=Task,
+    summary="Получает статус текущей задачи."
 )
 async def get_task_status(task_id: UUID, task_service: Depends[TaskService]) -> Task:
     task = await task_service.get_status(task_id)

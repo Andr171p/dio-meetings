@@ -23,7 +23,7 @@ from .exceptions import (
     TaskStatusUpdatingError
 )
 
-from ..utils import generate_file_name
+from ..utils import generate_file_name, get_document_file_name
 from ..constants import DOCUMENTS_BUCKET
 
 
@@ -93,7 +93,7 @@ class TaskService:
             await self._task_repository.update(id=task_id, status=TaskStatus.DONE, result_id=result_id)
             file_metadata = FileMetadata(
                 id=result_id,
-                title="Протокол совещания",
+                file_name=get_document_file_name(document.format),
                 key=key,
                 bucket=DOCUMENTS_BUCKET,
                 size=document.size,
@@ -125,6 +125,7 @@ class FileService:
         key = generate_file_name(file.format)
         await self._file_storage.upload_file(data=file.data, key=key, bucket=bucket)
         file_metadata = FileMetadata(
+            file_name=file.file_name,
             key=key,
             bucket=bucket,
             size=file.size,
