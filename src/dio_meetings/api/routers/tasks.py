@@ -4,11 +4,12 @@ from fastapi import APIRouter, status, HTTPException
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
+from ..schemas import TaskCreateSchema
+
 from ...core.domain import Task
 from ...core.services import TaskService
 
-from ..schemas import TaskCreateSchema
-
+from ...constants import NOT_FOUND, NOT_CREATED
 
 tasks_router = APIRouter(
     prefix="/api/v1/tasks",
@@ -27,7 +28,7 @@ async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskS
     if not created_task:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Error while creating task"
+            detail=NOT_CREATED
         )
     return created_task
 
@@ -40,5 +41,5 @@ async def create_task(task_create: TaskCreateSchema, task_service: Depends[TaskS
 async def get_task_status(task_id: UUID, task_service: Depends[TaskService]) -> Task:
     task = await task_service.get_status(task_id)
     if not task:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
     return task

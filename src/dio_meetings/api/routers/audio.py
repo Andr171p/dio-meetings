@@ -24,7 +24,7 @@ from ...constants import (
     NOT_CREATED,
     UPLOADING_ERROR,
     DOWNLOADING_ERROR,
-    FILE_NOT_FOUND,
+    NOT_FOUND,
     DELETION_ERROR,
     RECEIVING_ERROR,
     NOT_FILES_YET
@@ -75,7 +75,7 @@ async def download_audio(
     try:
         downloaded_file = await file_service.download(file_id, bucket=AUDIO_BUCKET)
         if not downloaded_file:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=FILE_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
         return Response(
             content=downloaded_file.data,
             media_type="audio/mpeg",
@@ -100,7 +100,7 @@ async def delete_audio(
     try:
         is_deleted = await file_service.remove(file_id, bucket=AUDIO_BUCKET)
         if not is_deleted:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=FILE_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
     except (DeletingError, FileStoreError):
         raise HTTPException(
@@ -122,7 +122,7 @@ async def get_audio(
     try:
         file_metadata = await file_repository.read(file_id)
         if not file_metadata:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=FILE_NOT_FOUND)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
         return file_metadata
     except ReadingError:
         raise HTTPException(

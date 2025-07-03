@@ -9,8 +9,11 @@ from ...core.domain import FileMetadata
 from ...core.services import FileService
 from ...core.base import FileMetadataRepository
 
-from ...constants import DOCUMENTS_BUCKET
-
+from ...constants import (
+    DOCUMENTS_BUCKET,
+    NOT_FOUND,
+    NOT_FILES_YET
+)
 
 documents_router = APIRouter(
     prefix="/api/v1/documents",
@@ -26,7 +29,7 @@ documents_router = APIRouter(
 async def download_document(result_id: UUID, file_service: Depends[FileService]) -> Response:
     downloaded_file = await file_service.download(result_id, bucket=DOCUMENTS_BUCKET)
     if not downloaded_file:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Result not found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
     return Response(
         content=downloaded_file.data,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -47,5 +50,5 @@ async def get_documents_list(
 ) -> list[FileMetadata]:
     documents = await file_metadata_repository.read_all(bucket=DOCUMENTS_BUCKET)
     if not documents:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No documents yet")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FILES_YET)
     return documents
