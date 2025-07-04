@@ -1,5 +1,4 @@
 
-
 class FileStoreError(Exception):
     pass
 
@@ -46,4 +45,3 @@ class TaskStatusUpdatingError(ServiceError):
 
 class ResultDownloadingError(ServiceError):
     pass
-

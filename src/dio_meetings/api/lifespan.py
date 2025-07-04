@@ -7,7 +7,6 @@ from fastapi import FastAPI
 
 from ..infrastructure.broker import create_faststream_app
 
-
 logger = logging.getLogger(__name__)
 
 

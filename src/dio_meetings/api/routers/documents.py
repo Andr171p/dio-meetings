@@ -5,15 +5,14 @@ from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
+from ..schemas import Date, Mode
+
+from ...core.enums import FileType
 from ...core.domain import FileMetadata
 from ...core.services import FileService
 from ...core.base import FileMetadataRepository
 
-from ...constants import (
-    DOCUMENTS_BUCKET,
-    NOT_FOUND,
-    NOT_FILES_YET
-)
+from ...constants import DOCUMENTS_BUCKET, NOT_FOUND
 
 documents_router = APIRouter(
     prefix="/api/v1/documents",
@@ -43,12 +42,15 @@ async def download_document(result_id: UUID, file_service: Depends[FileService])
 @documents_router.get(
     path="/",
     status_code=status.HTTP_200_OK,
-    response_model=list[FileMetadata]
+    response_model=list[FileMetadata],
+    summary="Фильтрует документы по дате."
 )
-async def get_documents_list(
+async def filter_document_by_date(
+        date: Date,
+        mode: Mode,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
-    documents = await file_metadata_repository.read_all(bucket=DOCUMENTS_BUCKET)
-    if not documents:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FILES_YET)
-    return documents
+    files_metadata = await file_metadata_repository.filter_by_date(
+        date=date, type=FileType.DOCUMENT, mode=mode
+    )
+    return files_metadata
