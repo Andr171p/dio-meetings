@@ -59,7 +59,7 @@ async def filter_document_by_date(
 @documents_router.get(
     path="/",
     status_code=status.HTTP_200_OK,
-    responses=list[FileMetadata],
+    response_model=list[FileMetadata],
     summary="Получает список всех документов."
 )
 async def get_documents_list(
