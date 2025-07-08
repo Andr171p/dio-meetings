@@ -208,7 +208,7 @@ curl -X DELETE "http://your-api-domain.com/api/v1/audio/123e4567-e89b-12d3-a456-
 {"detail": "RECEIVING_ERROR"}
 ```
 
- * ### GET `/?date={date}&mode={mode}`
+ * ### GET `/filter?date={date}&mode={mode}`
 
 Фильтрует загруженные аудио файлы по выбранной дате.
 
