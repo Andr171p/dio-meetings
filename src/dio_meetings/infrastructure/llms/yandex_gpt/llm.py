@@ -12,7 +12,7 @@ class YandexGPT(BaseLLM):
             api_key: str,
             model: MODELS = "yandexgpt"
     ) -> None:
-        self._yandex_gpt_api = YandexGPTAPI(
+        self.yandex_gpt_api = YandexGPTAPI(
             folder_id=folder_id,
             api_key=api_key,
             model=model,
@@ -20,7 +20,7 @@ class YandexGPT(BaseLLM):
         )
 
     async def generate(self, messages: list[BaseMessage]) -> AIMessage:
-        response = await self._yandex_gpt_api.acomplete(
+        response = await self.yandex_gpt_api.acomplete(
             messages=[message.model_dump() for message in messages]
         )
         alternative = response["result"]["alternatives"][0]

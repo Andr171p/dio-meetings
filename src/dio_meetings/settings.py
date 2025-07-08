@@ -40,6 +40,12 @@ class YandexGPTSettings(BaseSettings):
     API_KEY: str = os.getenv("YANDEX_GPT_API_KEY")
 
 
+class GigaChatSettings(BaseSettings):
+    API_KEY: str = os.getenv("GIGACHAT_API_KEY")
+    SCOPE: str = os.getenv("GIGACHAT_SCOPE")
+    MODEL_NAME: str = os.getenv("GIGACHAT_MODEL_NAME")
+
+
 class SaluteSpeechSettings(BaseSettings):
     SCOPE: str = os.getenv("SALUTE_SPEECH_SCOPE")
     API_KEY: str = os.getenv("SALUTE_SPEECH_API_KEY")
@@ -50,4 +56,5 @@ class Settings(BaseSettings):
     redis: RedisSettings = RedisSettings()
     minio: MinioSettings = MinioSettings()
     yandex_gpt: YandexGPTSettings = YandexGPTSettings()
+    giga_chat: GigaChatSettings = GigaChatSettings()
     salute_speech: SaluteSpeechSettings = SaluteSpeechSettings()

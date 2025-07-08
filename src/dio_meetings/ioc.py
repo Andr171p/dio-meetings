@@ -19,6 +19,7 @@ from .core.base import (
 
 from .infrastructure.documents import MicrosoftWordFactory
 from .infrastructure.llms.yandex_gpt import YandexGPT
+from .infrastructure.llms.giga_chat import GigaChatLLM
 from .infrastructure.stt.salute_speech import SaluteSpeech
 from src.dio_meetings.infrastructure.s3 import S3Client
 from .infrastructure.database.session import create_session_maker
@@ -58,9 +59,14 @@ class AppProvider(Provider):
 
     @provide(scope=Scope.APP)
     def get_llm(self, config: Settings) -> BaseLLM:
-        return YandexGPT(
-            folder_id=config.yandex_gpt.FOLDER_ID,
-            api_key=config.yandex_gpt.API_KEY
+        # return YandexGPT(
+        #    folder_id=config.yandex_gpt.FOLDER_ID,
+        #    api_key=config.yandex_gpt.API_KEY
+        # )
+        return GigaChatLLM(
+            api_key=config.giga_chat.API_KEY,
+            scope=config.giga_chat.SCOPE,
+            model=config.giga_chat.MODEL_NAME
         )
 
     @provide(scope=Scope.APP)
