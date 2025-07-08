@@ -36,11 +36,13 @@ class SummarizationService:
     async def summarize(self, audio: File, speakers_count: int, prompt_template: str) -> Optional[File]:
         if audio.type != FileType.AUDIO:
             raise ValueError("File type must be audio")
+        print("Start summarize")
         transcriptions = await self._stt.transcribe(
             audio_data=audio.data,
             audio_format=audio.format,
             speakers_count=speakers_count
         )
+        print("End transcript, start generate")
         formated_transcriptions = self._format_transcriptions(transcriptions)
         messages = [SystemMessage(text=prompt_template), UserMessage(text=formated_transcriptions)]
         ai_message = await self._llm.generate(messages)

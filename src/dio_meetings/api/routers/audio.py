@@ -133,7 +133,7 @@ async def get_audio(
 
 
 @audio_router.get(
-    path="/",
+    path="/filter",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
     summary="Фильтрует метаданные аудио записей совещаний по дате."

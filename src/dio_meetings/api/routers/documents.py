@@ -40,7 +40,7 @@ async def download_document(result_id: UUID, file_service: Depends[FileService])
 
 
 @documents_router.get(
-    path="/",
+    path="/filter",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
     summary="Фильтрует документы по дате."
@@ -53,4 +53,17 @@ async def filter_document_by_date(
     files_metadata = await file_metadata_repository.filter_by_date(
         date=date, type=FileType.DOCUMENT, mode=mode
     )
+    return files_metadata
+
+
+@documents_router.get(
+    path="/",
+    status_code=status.HTTP_200_OK,
+    responses=list[FileMetadata],
+    summary="Получает список всех документов."
+)
+async def get_documents_list(
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> list[FileMetadataRepository]:
+    files_metadata = await file_metadata_repository.read_all(bucket=DOCUMENTS_BUCKET)
     return files_metadata
