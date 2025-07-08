@@ -2,7 +2,7 @@ from typing import Optional, Protocol, Generic, TypeVar, Union
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from enums import StrEnum
+from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel
