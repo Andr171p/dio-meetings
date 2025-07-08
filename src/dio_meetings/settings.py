@@ -5,7 +5,6 @@ from pydantic_settings import BaseSettings
 
 from .constants import ENV_PATH, PG_DRIVER
 
-
 load_dotenv(ENV_PATH)
 
 

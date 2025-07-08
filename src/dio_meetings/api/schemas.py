@@ -24,15 +24,15 @@ Date = Annotated[
 
 Mode = Annotated[
     FilterMode,
-    Query(
-        "after",
-        description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)"
-    )
-]
+    Query(description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
+] = "after"
 
-Page = Annotated[int, Query(START_PAGE, description="Страница с метаданными")]
+Page = Annotated[int, Query(description="Страница с метаданными")] = START_PAGE
 
-Limit = Annotated[int, Query(DEFAULT_LIMIT, description="Лимит метаданных на одной странице")]
+Limit = Annotated[
+    int,
+    Query(description="Лимит метаданных на одной странице")
+] = DEFAULT_LIMIT
 
 
 class TaskCreateSchema(BaseModel):
