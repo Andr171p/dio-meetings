@@ -89,6 +89,29 @@ async def download_audio(
         )
 
 
+@audio_router.get(
+    path="/filter",
+    status_code=status.HTTP_200_OK,
+    response_model=list[FileMetadata],
+    summary="Фильтрует метаданные аудио записей совещаний по дате."
+)
+async def filter_audio_by_date(
+        date: Date,
+        mode: Mode,
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> list[FileMetadata]:
+    try:
+        files_metadata = await file_metadata_repository.filter_by_date(
+            date=date, type=FileType.AUDIO, mode=mode
+        )
+        return files_metadata
+    except ReadingError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=RECEIVING_ERROR
+        )
+
+
 @audio_router.delete(
     path="/{file_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -125,29 +148,6 @@ async def get_audio(
         if not file_metadata:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
         return file_metadata
-    except ReadingError:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=RECEIVING_ERROR
-        )
-
-
-@audio_router.get(
-    path="/filter",
-    status_code=status.HTTP_200_OK,
-    response_model=list[FileMetadata],
-    summary="Фильтрует метаданные аудио записей совещаний по дате."
-)
-async def filter_audio_by_date(
-        date: Date,
-        mode: Mode,
-        file_metadata_repository: Depends[FileMetadataRepository]
-) -> list[FileMetadata]:
-    try:
-        files_metadata = await file_metadata_repository.filter_by_date(
-            date=date, type=FileType.AUDIO, mode=mode
-        )
-        return files_metadata
     except ReadingError:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

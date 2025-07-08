@@ -22,6 +22,23 @@ documents_router = APIRouter(
 
 
 @documents_router.get(
+    path="/filter",
+    status_code=status.HTTP_200_OK,
+    response_model=list[FileMetadata],
+    summary="Фильтрует документы по дате."
+)
+async def filter_document_by_date(
+        date: Date,
+        mode: Mode,
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> list[FileMetadata]:
+    files_metadata = await file_metadata_repository.filter_by_date(
+        date=date, type=FileType.DOCUMENT, mode=mode
+    )
+    return files_metadata
+
+
+@documents_router.get(
     path="/{result_id}/download",
     status_code=status.HTTP_200_OK,
 )
@@ -37,23 +54,6 @@ async def download_document(result_id: UUID, file_service: Depends[FileService])
             "Content-Length": str(len(downloaded_file.data)),
         }
     )
-
-
-@documents_router.get(
-    path="/filter",
-    status_code=status.HTTP_200_OK,
-    response_model=list[FileMetadata],
-    summary="Фильтрует документы по дате."
-)
-async def filter_document_by_date(
-        date: Date,
-        mode: Mode,
-        file_metadata_repository: Depends[FileMetadataRepository]
-) -> list[FileMetadata]:
-    files_metadata = await file_metadata_repository.filter_by_date(
-        date=date, type=FileType.DOCUMENT, mode=mode
-    )
-    return files_metadata
 
 
 @documents_router.get(
