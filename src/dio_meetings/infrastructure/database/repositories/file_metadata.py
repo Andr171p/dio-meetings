@@ -11,7 +11,7 @@ from ..models import FileMetadataOrm
 
 from src.dio_meetings.core.enums import FileType
 from src.dio_meetings.core.domain import FileMetadata
-from src.dio_meetings.core.base import FileMetadataRepository, Mode
+from src.dio_meetings.core.base import FileMetadataRepository, FilterMode
 from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
 
 
@@ -91,7 +91,7 @@ class SQLFileMetadataRepository(FileMetadataRepository):
             self,
             date: datetime,
             type: Optional[FileType] = None,
-            mode: Mode = "after"
+            mode: FilterMode = FilterMode.AFTER
     ) -> list[FileMetadata]:
         try:
             stmt = select(FileMetadataOrm)
