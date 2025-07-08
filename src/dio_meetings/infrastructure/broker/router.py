@@ -27,5 +27,5 @@ async def summarize_audio(
         speakers_count=SPEAKERS_COUNT,
         prompt_template=SUMMARY_TEMPLATE
     )
-    await task_service.update_status(task_id=task.task_id, document=document)
+    await task_service.update_status(task_id=task.id, document=document)
     logger.info("Finished summarizing audio")
