@@ -2,6 +2,7 @@ from typing import Optional, Protocol, Generic, TypeVar, Union, Literal
 
 from abc import ABC, abstractmethod
 from datetime import datetime
+from enums import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -14,7 +15,10 @@ T = TypeVar("T", bound=BaseModel)
 
 Id = Union[int, str, UUID]
 
-Mode = Literal["after", "before"]
+
+class FilterMode(StrEnum):
+    AFTER = "after"
+    BEFORE = "before"
 
 
 class CRUDRepository(Generic[T]):
@@ -65,7 +69,7 @@ class FileMetadataRepository(CRUDRepository[FileMetadata]):
             self,
             date: datetime,
             type: Optional[FileType] = None,
-            mode: Mode = "after"
+            mode: FilterMode = FilterMode.AFTER
     ) -> list[FileMetadata]: pass
 
     async def paginate(self, page: int, limit: int) -> list[FileMetadata]: pass

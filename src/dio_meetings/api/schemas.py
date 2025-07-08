@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 from fastapi import UploadFile, File, Query
 
-from ..core.base import Mode as FilterMode
+from ..core.base import FilterMode
 
 from ..constants import START_PAGE, DEFAULT_LIMIT
 
@@ -25,7 +25,7 @@ Date = Annotated[
 Mode = Annotated[
     FilterMode,
     Query(description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
-] = "after"
+] = FilterMode.AFTER
 
 Page = Annotated[int, Query(description="Страница с метаданными")] = START_PAGE
 
