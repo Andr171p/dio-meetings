@@ -23,7 +23,7 @@ Date = Annotated[
 ]
 
 Mode = Annotated[
-    FilterMode,
+    str,
     Query(description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
 ] = FilterMode.AFTER
 
