@@ -4,7 +4,7 @@ services:
     container_name: dio_meetings_app
     restart: unless-stopped
     ports:
-      - "8001:8000"
+      - "8802:8000"
     volumes:
       - .:/dio_meetings
     depends_on:
