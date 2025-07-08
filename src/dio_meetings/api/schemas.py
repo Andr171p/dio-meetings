@@ -9,8 +9,6 @@ from fastapi import UploadFile, File, Query
 
 from ..core.base import FilterMode
 
-from ..constants import START_PAGE, DEFAULT_LIMIT
-
 AudioFile = Annotated[UploadFile, File(..., description="Аудио запись встречи/совещания")]
 
 Date = Annotated[
@@ -23,16 +21,16 @@ Date = Annotated[
 ]
 
 Mode = Annotated[
-    str,
-    Query(description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
-] = FilterMode.AFTER
+    FilterMode,
+    Query(..., description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
+]
 
-Page = Annotated[int, Query(description="Страница с метаданными")] = START_PAGE
+Page = Annotated[int, Query(description="Страница с метаданными")]
 
 Limit = Annotated[
     int,
     Query(description="Лимит метаданных на одной странице")
-] = DEFAULT_LIMIT
+]
 
 
 class TaskCreateSchema(BaseModel):
