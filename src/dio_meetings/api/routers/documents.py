@@ -64,6 +64,6 @@ async def filter_document_by_date(
 )
 async def get_documents_list(
         file_metadata_repository: Depends[FileMetadataRepository]
-) -> list[FileMetadataRepository]:
+) -> list[FileMetadata]:
     files_metadata = await file_metadata_repository.read_all(bucket=DOCUMENTS_BUCKET)
     return files_metadata
