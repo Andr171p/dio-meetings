@@ -3,7 +3,7 @@ from langchain_gigachat import GigaChat
 from src.dio_meetings.core.base import BaseLLM
 from src.dio_meetings.core.dto import BaseMessage, AIMessage
 
-LANGCHAIN_ROLES_MAPPING = {"SYSTEM": "system", "USER": "human", "AI": "ai"}
+LANGCHAIN_ROLES_MAPPING = {"system": "system", "user": "human", "ai": "ai"}
 
 
 class GigaChatLLM(BaseLLM):
