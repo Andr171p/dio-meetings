@@ -1,4 +1,4 @@
-from typing import Optional, Protocol, Generic, TypeVar, Union, Literal
+from typing import Optional, Protocol, Generic, TypeVar, Union
 
 from abc import ABC, abstractmethod
 from datetime import datetime
