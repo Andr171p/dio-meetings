@@ -56,6 +56,7 @@ class SQLTaskRepository(CRUDRepository[Task]):
                 update(TaskOrm)
                 .values(**kwargs)
                 .where(TaskOrm.id == id)
+                .returning(TaskOrm)
             )
             result = await self.session.execute(stmt)
             await self.session.commit()

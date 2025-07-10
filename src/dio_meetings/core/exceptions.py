@@ -45,3 +45,7 @@ class TaskStatusUpdatingError(ServiceError):
 
 class ResultDownloadingError(ServiceError):
     pass
+
+
+class SummarizationError(ServiceError):
+    pass
