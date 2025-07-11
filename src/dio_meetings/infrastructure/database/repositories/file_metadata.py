@@ -1,17 +1,17 @@
-from datetime import datetime
 from typing import Optional
 
 from uuid import UUID
+from datetime import datetime
 
-from sqlalchemy import insert, select, delete, func
+from sqlalchemy import insert, select, delete, func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models import FileMetadataOrm
+from ..models import FileMetadataOrm, TaskOrm
 
 from src.dio_meetings.core.enums import FileType
 from src.dio_meetings.core.domain import FileMetadata
-from src.dio_meetings.core.base import FileMetadataRepository, FilterMode
+from src.dio_meetings.core.base import FileMetadataRepository
 from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
 
 
@@ -47,9 +47,19 @@ class SQLFileMetadataRepository(FileMetadataRepository):
             await self.session.rollback()
             raise ReadingError(f"Error while reading file: {e}") from e
 
-    async def read_all(self, bucket: Optional[str] = None) -> list[FileMetadata]:
+    async def read_all(
+            self,
+            page: int,
+            limit: int,
+            bucket: Optional[str] = None
+    ) -> list[FileMetadata]:
         try:
-            stmt = select(FileMetadataOrm)
+            offset = (page - 1) * limit
+            stmt = (
+                select(FileMetadataOrm)
+                .offset(offset)
+                .limit(limit)
+            )
             if bucket:
                 stmt = stmt.where(FileMetadataOrm.bucket == bucket)
             results = await self.session.execute(stmt)
@@ -72,48 +82,62 @@ class SQLFileMetadataRepository(FileMetadataRepository):
             await self.session.rollback()
             raise DeletingError(f"Error while deleting file: {e}") from e
 
-    async def paginate(self, page: int, limit: int) -> list[FileMetadata]:
-        try:
-            offset = (page - 1) * limit
-            stmt = (
-                select(FileMetadataOrm)
-                .offset(offset)
-                .limit(limit)
-            )
-            results = await self.session.execute(stmt)
-            files_metadata = results.scalars().all()
-            return [FileMetadata.model_validate(file_metadata) for file_metadata in files_metadata]
-        except SQLAlchemyError as e:
-            await self.session.rollback()
-            raise ReadingError(f"Error while paginating files: {e}") from e
-
-    async def filter_by_date(
+    async def filter_by_date_range(
             self,
-            date: datetime,
+            start_date: datetime,
+            end_date: datetime,
             type: Optional[FileType] = None,
-            mode: FilterMode = FilterMode.AFTER
     ) -> list[FileMetadata]:
         try:
-            stmt = select(FileMetadataOrm)
+            stmt = (
+                select(FileMetadataOrm)
+                .where(
+                    and_(
+                        FileMetadataOrm.uploaded_date >= start_date,
+                        FileMetadataOrm.uploaded_date <= end_date
+                    )
+                )
+            )
             if type:
                 stmt = stmt.where(FileMetadataOrm.type == type)
-            if mode == "before":
-                stmt = (
-                    stmt
-                    .where(FileMetadataOrm.uploaded_date < date)
-                    .order_by(FileMetadataOrm.uploaded_date)
-                )
-            stmt = (
-                stmt
-                .where(FileMetadataOrm.uploaded_date > date)
-                .order_by(FileMetadataOrm.uploaded_date)
-            )
             results = await self.session.execute(stmt)
             files_metadata = results.scalars().all()
             return [FileMetadata.model_validate(file_metadata) for file_metadata in files_metadata]
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise ReadingError(f"Error while filtering by date: {e}") from e
+
+    async def get_today(self, type: Optional[FileType] = None) -> list[FileMetadata]:
+        today = datetime.today()
+        try:
+            stmt = (
+                select(FileMetadataOrm)
+                .where(FileMetadataOrm.uploaded_date == today)
+            )
+            results = await self.session.execute(stmt)
+            files_metadata = results.scalars().all()
+            return [FileMetadata.model_validate(file_metadata) for file_metadata in files_metadata]
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise ReadingError(f"Error while receiving today files: {e}") from e
+
+    async def get_result(self, id: UUID) -> Optional[FileMetadata]:
+        try:
+            stmt = (
+                select(FileMetadataOrm)
+                .join(TaskOrm, FileMetadataOrm.id == TaskOrm.file_id)
+                .where(
+                    (FileMetadataOrm.id == id) &
+                    (FileMetadataOrm.type == FileType.DOCUMENT) &
+                    (TaskOrm.result_id.is_not(None))
+                )
+            )
+            result = await self.session.execute(stmt)
+            file_metadata = result.scalar_one_or_none()
+            return FileMetadata.model_validate(file_metadata) if file_metadata else None
+        except SQLAlchemyError as e:
+            await self.session.rollback()
+            raise ReadingError(f"Error while receiving result: {e}") from e
 
     async def count(self, bucket: Optional[str] = None) -> int:
         try:

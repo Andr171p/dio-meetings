@@ -2,7 +2,6 @@ from typing import Optional, Protocol, Generic, TypeVar, Union
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -14,11 +13,6 @@ from .dto import BaseMessage, AIMessage, Transcription
 T = TypeVar("T", bound=BaseModel)
 
 Id = Union[int, str, UUID]
-
-
-class FilterMode(StrEnum):
-    AFTER = "after"
-    BEFORE = "before"
 
 
 class CRUDRepository(Generic[T]):
@@ -63,16 +57,23 @@ class FileStorage(ABC):
 
 
 class FileMetadataRepository(CRUDRepository[FileMetadata]):
-    async def read_all(self, bucket: Optional[str] = None) -> list[FileMetadata]: pass
-
-    async def filter_by_date(
+    async def read_all(
             self,
-            date: datetime,
-            type: Optional[FileType] = None,
-            mode: FilterMode = FilterMode.AFTER
+            page: int,
+            limit: int,
+            bucket: Optional[str] = None
     ) -> list[FileMetadata]: pass
 
-    async def paginate(self, page: int, limit: int) -> list[FileMetadata]: pass
+    async def filter_by_date_range(
+            self,
+            start_date: datetime,
+            end_date: datetime,
+            type: Optional[FileType] = None,
+    ) -> list[FileMetadata]: pass
+
+    async def get_today(self, type: Optional[FileType] = None) -> list[FileMetadata]: pass
+
+    async def get_result(self, id: UUID) -> Optional[FileMetadata]: pass
 
     async def count(self, type: Optional[FileType] = None) -> int: pass
 

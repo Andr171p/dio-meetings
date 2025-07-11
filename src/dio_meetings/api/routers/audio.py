@@ -5,7 +5,7 @@ from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
-from ..schemas import AudioFile, Date, Mode
+from ..schemas import AudioFile, Date, Page, Limit
 
 from ...core.base import FileMetadataRepository
 from ...core.services import FileService
@@ -93,17 +93,35 @@ async def download_audio(
     path="/filter",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
-    summary="Фильтрует метаданные аудио записей совещаний по дате."
+    summary="Фильтрует метаданные аудиозаписей по диапазону дат."
 )
-async def filter_audio_by_date(
-        date: Date,
-        mode: Mode,
+async def filter_audio_by_date_range(
+        start: Date,
+        end: Date,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
     try:
-        files_metadata = await file_metadata_repository.filter_by_date(
-            date=date, type=FileType.AUDIO, mode=mode
+        files_metadata = await file_metadata_repository.filter_by_date_range(
+            start_date=start, end_date=end, type=FileType.AUDIO
         )
+        return files_metadata
+    except ReadingError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=RECEIVING_ERROR
+        )
+
+
+@audio_router.get(
+    path="/today",
+    status_code=status.HTTP_200_OK,
+    summary="Получает метаданные сегодняшних аудиозаписей."
+)
+async def get_today_audio(
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> list[FileMetadata]:
+    try:
+        files_metadata = await file_metadata_repository.get_today(type=FileType.AUDIO)
         return files_metadata
     except ReadingError:
         raise HTTPException(
@@ -134,6 +152,28 @@ async def delete_audio(
 
 
 @audio_router.get(
+    path="/{file_id}/document",
+    status_code=status.HTTP_200_OK,
+    response_model=FileMetadata,
+    summary="Получает документ распознанной аудиозаписи."
+)
+async def get_document_by_audio(
+        file_id: UUID,
+        file_metadata_repository: Depends[FileMetadataRepository]
+) -> FileMetadata:
+    try:
+        file_metadata = await file_metadata_repository.get_result(file_id)
+        if not file_metadata:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FOUND)
+        return file_metadata
+    except ReadingError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=RECEIVING_ERROR
+        )
+
+
+@audio_router.get(
     path="/{file_id}",
     status_code=status.HTTP_200_OK,
     response_model=FileMetadata,
@@ -156,16 +196,22 @@ async def get_audio(
 
 
 @audio_router.get(
-    path="/",
+    path="",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
     summary="Получает список всех метаданные аудио записей совещаний."
 )
 async def get_audio_list(
+        page: Page,
+        limit: Limit,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
     try:
-        files_metadata = await file_metadata_repository.read_all(bucket=AUDIO_BUCKET)
+        files_metadata = await file_metadata_repository.read_all(
+            page=page,
+            limit=limit,
+            bucket=AUDIO_BUCKET
+        )
         if not files_metadata:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=NOT_FILES_YET)
         return files_metadata

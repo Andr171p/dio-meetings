@@ -7,8 +7,6 @@ from pydantic import BaseModel
 
 from fastapi import UploadFile, File, Query
 
-from ..core.base import FilterMode
-
 AudioFile = Annotated[UploadFile, File(..., description="Аудио запись встречи/совещания")]
 
 Date = Annotated[
@@ -18,11 +16,6 @@ Date = Annotated[
         description="Дата для фильтрации в формате YYYY-MM-DD или YYYY-MM-DDTHH:MM:SS",
         examples=["2025-01-01", "2025-01-01T12:00:00"]
     )
-]
-
-Mode = Annotated[
-    FilterMode,
-    Query(..., description="Режим фильтрации: 'after' (после даты) или 'before' (до даты)")
 ]
 
 Page = Annotated[int, Query(description="Страница с метаданными")]

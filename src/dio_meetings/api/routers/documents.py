@@ -57,7 +57,7 @@ async def download_document(result_id: UUID, file_service: Depends[FileService])
 
 
 @documents_router.get(
-    path="/",
+    path="",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
     summary="Получает список всех документов."
