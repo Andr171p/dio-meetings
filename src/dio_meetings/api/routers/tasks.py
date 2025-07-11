@@ -19,7 +19,7 @@ tasks_router = APIRouter(
 
 
 @tasks_router.post(
-    path="/",
+    path="",
     status_code=status.HTTP_201_CREATED,
     response_model=Task,
     summary="Создаёт задачу на генерацию протокола совещания."
