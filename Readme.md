@@ -208,16 +208,16 @@ curl -X DELETE "http://your-api-domain.com/api/v1/audio/123e4567-e89b-12d3-a456-
 {"detail": "RECEIVING_ERROR"}
 ```
 
- * ### GET `/filter?date={date}&mode={mode}`
+ * ### GET `/filter?start={date}&end={date}`
 
-Фильтрует загруженные аудио файлы по выбранной дате.
+Фильтрует загруженные аудио файлы по заданному промежутку дат.
 
 <b>Query Parameters</b><sup>required</sup>
 
-| Имя  | Тип      | Описание                                    |
-|------|----------|---------------------------------------------|
-| date | datetime | Дата для фильтрации в формате (YYYY-MM-DD). |
-| mode | string   | "after" после указанной даты, "before" до.  |
+| Имя   | Тип      | Описание                               |
+|-------|----------|----------------------------------------|
+| start | datetime | Стартовая дата в формате (YYYY-MM-DD). |
+| end   | datetime | Конечная дата  в формате (YYYY-MM-DD)  |
 
 <b>Responses</b>
 
@@ -256,9 +256,90 @@ curl -X GET "http://your-api-domain.com/api/v1/audio/?date=2023-01-01&mode=after
 ```
 
 
+ * ### GET `/today`
+
+Возвращает все сегодняшние аудиозаписи.
+
+<b>Responses</b>
+ 
+| Статус код | Описание                    |
+|------------|-----------------------------|
+ | 200        | Успешное получение данных   |
+| 500        | Ошибка при получении данных |
+
+ * Body (200 OK)
+
+```json
+[
+  {
+    "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+    "file_name": "string",
+    "key": "string",
+    "bucket": "string",
+    "size": 0.00,
+    "format": "mp3",
+    "type": "AUDIO",
+    "uploaded_date": "2025-06-10T11:03:28.263849"
+  }
+]
+```
+
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail": "RECEIVING_ERROR"}
+```
+
+
+ * ### GET `/{file_id}/document`
+
+Получает метаданные сформированного протокола совещания.
+
+<b>Parameters</b><sup>required</sup>
+
+| Имя     | Тип  | Описание       |
+|---------|------|----------------|
+| file_id | UUID | ID аудио файла |
+
+<b>Responses</b>
+
+| Статус код | Описание                                     |
+|------------|----------------------------------------------|
+ | 200        | Успешное получение метаданных                |
+ | 404        | Для этого аудиофайла не сформирован протокол |
+| 500        | Ошибка при получении метаданных              |
+
+ * Body (200 OK)
+
+```json
+{
+    "id": "1ef0141d-57a2-41d3-b1d2-3ef77290a8d8",
+    "file_name": "string",
+    "key": "string",
+    "bucket": "string",
+    "size": 0.00,
+    "format": "DOCX",
+    "type": "DOCUMENT",
+    "uploaded_date": "2025-06-10T11:03:28.263849"
+  }
+```
+
+ * Body (404 NOT FOUND)
+
+```json
+{"detail": "NOT_FOUND"}
+```
+
+ * Body (500 INTERNAL SERVER ERROR)
+
+```json
+{"detail":  "RECEIVING_ERROR"}
+```
+
+
 ## Методы `/api/v1/tasks`
 
- * ### POST `/`
+ * ### POST ``
 
 Создаёт задачу на генерацию протокола совещания.
 
