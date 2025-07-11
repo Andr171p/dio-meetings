@@ -9,8 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..models import FileMetadataOrm, TaskOrm
 
-from src.dio_meetings.core.enums import FileType
 from src.dio_meetings.core.domain import FileMetadata
+from src.dio_meetings.core.enums import FileType, TaskStatus
 from src.dio_meetings.core.base import FileMetadataRepository
 from src.dio_meetings.core.exceptions import CreationError, ReadingError, DeletingError
 
@@ -125,11 +125,11 @@ class SQLFileMetadataRepository(FileMetadataRepository):
         try:
             stmt = (
                 select(FileMetadataOrm)
-                .join(TaskOrm, FileMetadataOrm.id == TaskOrm.file_id)
+                .join(TaskOrm, FileMetadataOrm.id == TaskOrm.file_id, isouter=True)
                 .where(
                     (FileMetadataOrm.id == id) &
                     (FileMetadataOrm.type == FileType.DOCUMENT) &
-                    (TaskOrm.result_id.is_not(None))
+                    (TaskOrm.status == TaskStatus.DONE)
                 )
             )
             result = await self.session.execute(stmt)
