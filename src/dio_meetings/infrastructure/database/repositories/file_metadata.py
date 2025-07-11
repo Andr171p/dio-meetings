@@ -125,12 +125,15 @@ class SQLFileMetadataRepository(FileMetadataRepository):
         try:
             stmt = (
                 select(FileMetadataOrm)
-                .join(TaskOrm, FileMetadataOrm.id == TaskOrm.file_id, isouter=True)
-                .where(
-                    (FileMetadataOrm.id == id) &
-                    (FileMetadataOrm.type == FileType.DOCUMENT) &
-                    (TaskOrm.status == TaskStatus.DONE)
+                .join(
+                    TaskOrm,
+                    and_(
+                        FileMetadataOrm.id == TaskOrm.result_id,
+                        TaskOrm.file_id == id,
+                        TaskOrm.status == TaskStatus.DONE
+                    )
                 )
+                .where(FileMetadataOrm.type == FileType.DOCUMENT)
             )
             result = await self.session.execute(stmt)
             file_metadata = result.scalar_one_or_none()
