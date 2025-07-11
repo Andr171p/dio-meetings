@@ -5,7 +5,7 @@ from fastapi.responses import Response
 
 from dishka.integrations.fastapi import DishkaRoute, FromDishka as Depends
 
-from ..schemas import Date, Mode
+from ..schemas import Date, Page, Limit
 
 from ...core.enums import FileType
 from ...core.domain import FileMetadata
@@ -25,15 +25,15 @@ documents_router = APIRouter(
     path="/filter",
     status_code=status.HTTP_200_OK,
     response_model=list[FileMetadata],
-    summary="Фильтрует документы по дате."
+    summary="Фильтрует документы по диапазону дат."
 )
-async def filter_document_by_date(
-        date: Date,
-        mode: Mode,
+async def filter_document_by_date_range(
+        start: Date,
+        end: Date,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
-    files_metadata = await file_metadata_repository.filter_by_date(
-        date=date, type=FileType.DOCUMENT, mode=mode
+    files_metadata = await file_metadata_repository.filter_by_date_range(
+        start_date=start, end_date=end, type=FileType.DOCUMENT
     )
     return files_metadata
 
@@ -63,7 +63,13 @@ async def download_document(result_id: UUID, file_service: Depends[FileService])
     summary="Получает список всех документов."
 )
 async def get_documents_list(
+        page: Page,
+        limit: Limit,
         file_metadata_repository: Depends[FileMetadataRepository]
 ) -> list[FileMetadata]:
-    files_metadata = await file_metadata_repository.read_all(bucket=DOCUMENTS_BUCKET)
+    files_metadata = await file_metadata_repository.read_all(
+        page=page,
+        limit=limit,
+        bucket=DOCUMENTS_BUCKET
+    )
     return files_metadata
