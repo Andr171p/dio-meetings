@@ -85,12 +85,15 @@ class TaskService:
             raise TaskCreationError(f"Error while task creation: {e}") from e
 
     async def update_status(self, task_id: UUID, document: Optional[File]) -> None:
-        if document.type != FileType.DOCUMENT and document:
-            raise ValueError("File type must be document")
         try:
             if not document:
                 await self._task_repository.update(id=task_id, status=TaskStatus.ERROR)
                 return
+        except UpdatingError as e:
+            raise TaskStatusUpdatingError(f"Error while updating task status: {e}") from e
+        if document.type != FileType.DOCUMENT:
+            raise ValueError("File type must be document")
+        try:
             key = generate_file_name(document.format)
             result_id = uuid4()
             await self._file_storage.upload_file(data=document.data, key=key, bucket=DOCUMENTS_BUCKET)
