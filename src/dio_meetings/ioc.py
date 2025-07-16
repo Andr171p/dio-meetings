@@ -69,7 +69,7 @@ class AppProvider(Provider):
             model=config.giga_chat.MODEL_NAME
         )
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def get_document_factory(self) -> DocumentFactory:
         return MicrosoftWordFactory()
 
@@ -104,7 +104,7 @@ class AppProvider(Provider):
             broker=broker
         )
 
-    @provide(scope=Scope.APP)
+    @provide(scope=Scope.REQUEST)
     def get_summarization_service(
             self,
             stt: BaseSTT,
