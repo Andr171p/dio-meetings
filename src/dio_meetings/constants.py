@@ -34,6 +34,16 @@ AUDIO_FORMATS = [
     "ogg",
     "pcm"
 ]
+VIDEO_FORMATS = [
+    "mp4",
+    "avi",
+    "mov",
+    "mkh",
+    "flv",
+    "webm",
+    "ts",
+    "wmv"
+]
 DOCUMENT_FORMATS = [
     "doc",
     "docx",

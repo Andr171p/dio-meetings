@@ -11,6 +11,7 @@ from ...core.base import FileMetadataRepository
 from ...core.services import FileService
 from ...core.enums import FileType
 from ...core.domain import FileMetadata, File
+from ...utils import convert_video_to_audio, get_file_format
 from ...core.exceptions import (
     CreationError,
     ReadingError,
@@ -28,7 +29,8 @@ from ...constants import (
     NOT_FOUND,
     DELETION_ERROR,
     RECEIVING_ERROR,
-    NOT_FILES_YET
+    NOT_FILES_YET,
+    VIDEO_FORMATS
 )
 
 audio_router = APIRouter(
@@ -49,7 +51,14 @@ async def upload_audio(
         file_service: Depends[FileService]
 ) -> FileMetadata:
     try:
-        file = File(data=await audio_file.read(), file_name=audio_file.filename)
+        file_name = audio_file.filename
+        file_format = get_file_format(file_name)
+        if file_format in VIDEO_FORMATS:
+            file_data = convert_video_to_audio(video_bytes=await audio_file.read())
+            file_name = file_name.replace(file_format, "mp3")
+        else:
+            file_data = await audio_file.read()
+        file = File(data=file_data, file_name=file_name)
         file_metadata = await file_service.upload(file, bucket=AUDIO_BUCKET)
         if not file_metadata:
             raise HTTPException(
