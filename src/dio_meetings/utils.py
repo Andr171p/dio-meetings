@@ -52,7 +52,8 @@ def convert_video_to_audio(video_bytes: bytes) -> bytes:
         )
         audio_bytes, stderr = process.communicate(input=video_bytes)
         if process.returncode != 0:
-            raise RuntimeError(f"FFmpeg error: {stderr.decode("utf-8")}")
+            error = stderr.decode("utf-8")
+            raise RuntimeError(f"FFmpeg error: {error}")
         return audio_bytes
     except Exception as e:
         raise RuntimeError(f"Audio conversion failed: {e}") from e
