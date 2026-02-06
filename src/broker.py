@@ -27,6 +27,9 @@ app = FastStream(broker)
 @broker.subscriber("meeting-minutes:generate")
 async def process_message(logger: Logger, message: GenerationMessage):
     file = await s3_storage.download(message.s3_key)
+    logger.info(
+        "Downloaded file %s mb by key %s", round(len(file) / 1_000_000, 2), message.s3_key
+    )
     async with session_factory() as session:
         transcribed_chunks = []
         for chunk in split_audio_into_chunks(
@@ -37,6 +40,9 @@ async def process_message(logger: Logger, message: GenerationMessage):
             )
             transcribed_chunks.append(chunk_transcript)
         full_transcript = "\n".join(transcribed_chunks)
+        logger.info(
+            "Start generate minutes of meeting, transcript %s characters", len(full_transcript)
+        )
         md_text = await generate_meeting_minutes(full_transcript)
         summary = md_text.replace("```", "").replace("markdown", "")
         await repository.add_meeting_minutes(
@@ -51,3 +57,4 @@ async def process_message(logger: Logger, message: GenerationMessage):
             session, task_id=message.task_id, status="complete"
         )
         await session.commit()
+        logger.info("Minutes of meeting generation completed!")
