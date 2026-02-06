@@ -1,10 +1,12 @@
-FROM ghcr.io/astral-sh/uv:python3.13-slim AS builder
+FROM python:3.13-slim AS builder
+
+RUN pip install uv
 
 WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen --no-dev
+RUN uv venv && . .venv/bin/activate && uv pip install --system -r pyproject.toml
 
 FROM python:3.13-slim
 
