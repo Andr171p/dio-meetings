@@ -78,6 +78,7 @@ class Settings(BaseSettings):
     yandexcloud: YandexCloudSettings = YandexCloudSettings()
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
+    sber_devices: SberDevicesSettings = SberDevicesSettings()
 
 
 settings = Settings()
