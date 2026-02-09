@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .broker import app as faststream_app
+from .broker import broker
 from .database.base import create_tables
 from .routers import router
 
@@ -11,9 +11,9 @@ from .routers import router
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     await create_tables()
-    await faststream_app.broker.start()
+    await broker.start()
     yield
-    await faststream_app.broker.stop()
+    await broker.stop()
 
 
 app = FastAPI(lifespan=lifespan)

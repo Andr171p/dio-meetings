@@ -10,6 +10,9 @@ TIMEZONE = pytz.timezone("Europe/Moscow")
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / ".env"
 
+SQLITE_URL = f"sqlite+aiosqlite:///{BASE_DIR / "db.sqlite3"}"
+CHROMA_PATH = BASE_DIR / ".chroma"
+
 load_dotenv(ENV_PATH)
 
 
@@ -78,7 +81,7 @@ class Settings(BaseSettings):
     yandexcloud: YandexCloudSettings = YandexCloudSettings()
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
-    sber_devices: SberDevicesSettings = SberDevicesSettings()
+    sberdevices: SberDevicesSettings = SberDevicesSettings()
 
 
 settings = Settings()

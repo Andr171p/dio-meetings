@@ -12,6 +12,7 @@ dependencies = [
     "audioop-lts>=0.2.2",
     "fastapi[all]>=0.128.1",
     "faststream[redis]>=0.6.6",
+    "ffmpeg-python>=0.2.0",
     "langchain>=1.2.8",
     "langchain-openai>=1.1.7",
     "markdown-pdf>=1.11",

@@ -15,3 +15,4 @@ uvicorn~=0.40.0
 alembic~=1.18.3
 asyncpg~=0.31.0
 audioop-lts~=0.2.2
+ffmpeg-python~=0.2.0

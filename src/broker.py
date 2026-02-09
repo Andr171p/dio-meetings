@@ -1,31 +1,22 @@
 from uuid import UUID
 
-from faststream import FastStream, Logger
+from faststream import Logger
 from faststream.redis import RedisBroker
 from pydantic import BaseModel
 
 from . import s3_storage
-from .database import repository
+from .database import repositories
 from .database.base import session_factory
 from .integrations import salute_speech
-from .schemas import MeetingMinutes
+from .schemas import Minutes
 from .settings import settings
 from .utils import generate_meeting_minutes, split_audio_into_chunks
 
-
-class GenerationMessage(BaseModel):
-    task_id: UUID
-    audio_format: str
-    s3_key: str
-
-
 broker = RedisBroker(settings.redis.url)
 
-app = FastStream(broker)
 
-
-@broker.subscriber("meeting-minutes:generate")
-async def process_message(logger: Logger, message: GenerationMessage):
+@broker.subscriber("minutes:create")
+async def process_task(task_id: UUID, logger: Logger) -> None:
     file = await s3_storage.download(message.s3_key)
     logger.info(
         "Downloaded file %s mb by key %s", round(len(file) / 1_000_000, 2), message.s3_key

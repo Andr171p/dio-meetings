@@ -1,11 +1,11 @@
-__all__ = ("router",)
+__all__ = ["router"]
 
 from fastapi import APIRouter
 
-from .meeting_minutes import router as meeting_minutes_router
+from .meetings import router as meeting_router
 from .tasks import router as tasks_router
 
-router = APIRouter(prefix="/api/v1")
+router = APIRouter(prefix="/api/v2")
 
-router.include_router(meeting_minutes_router)
+router.include_router(meeting_router)
 router.include_router(tasks_router)

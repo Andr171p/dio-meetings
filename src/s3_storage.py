@@ -33,6 +33,11 @@ async def download(key: str) -> bytes:
         return await response["Body"].read()
 
 
+async def delete(key: str) -> None:
+    async with _get_s3_client() as s3_client:
+        await s3_client.delete_object(Bucket=BUCKET_NAME, Key=key)
+
+
 async def create_presigned_url(key: str, expires_in: int = 60 * 60) -> str:
     async with _get_s3_client() as s3_client:
         return await s3_client.generate_presigned_url(
