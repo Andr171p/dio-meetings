@@ -10,7 +10,7 @@ from uuid import UUID
 import aiohttp
 from pydantic import BaseModel
 
-from . import sber_devices
+from . import sberdevices
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ async def _upload_file(
                 f"Format {audio_encoding} requires sample rate between "
                 f"{min_samplerate} and {max_samplerate} Hz, but got {samplerate} Hz"
             )
-    access_token = await sber_devices.authenticate()
+    access_token = await sberdevices.authenticate()
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": config["content_type"].format(samplerate=samplerate),
@@ -169,7 +169,7 @@ async def _create_task(
     :returns: Созданная задача со статусом 'NEW'.
     """
 
-    access_token = await sber_devices.authenticate()
+    access_token = await sberdevices.authenticate()
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Accept": "application/json",
@@ -224,7 +224,7 @@ async def _create_task(
 
 
 async def _get_task_status(task_id: str, use_ssl: bool = False) -> dict[str, Any]:
-    access_token = await sber_devices.authenticate()
+    access_token = await sberdevices.authenticate()
     headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/json"}
     params = {"id": task_id}
     payload = {}
@@ -284,7 +284,7 @@ class RecognizedResults(UserList[RecognizedResult]):
 
 
 async def _download_file(response_file_id: str, use_ssl: bool = False) -> RecognizedResults:
-    access_token = await sber_devices.authenticate()
+    access_token = await sberdevices.authenticate()
     headers = {"Authorization": f"Bearer {access_token}", "Accept": "application/octet-stream"}
     params = {"response_file_id": response_file_id}
     payload = {}

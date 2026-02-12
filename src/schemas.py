@@ -7,12 +7,11 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    NonNegativeFloat,
     PositiveFloat,
     PositiveInt,
 )
 
-from .utils import current_datetime
+from .utils.commons import current_datetime
 
 
 class Meeting(BaseModel):

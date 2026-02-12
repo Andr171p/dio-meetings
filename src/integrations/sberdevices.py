@@ -23,7 +23,7 @@ async def authenticate(use_ssl: bool = False) -> str:
 
     rq_uid = uuid4()
     headers = {
-        "Authorization": f"Bearer {settings.sber_devices.api_key}",
+        "Authorization": f"Bearer {settings.sberdevices.api_key}",
         "Content-Type": "application/x-www-form-urlencoded",
         "Accept": "application/json",
         "RqUID": f"{rq_uid}",

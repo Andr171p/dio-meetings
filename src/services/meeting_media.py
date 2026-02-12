@@ -2,10 +2,12 @@ from typing import Literal
 
 from uuid import UUID, uuid4
 
+from tinytag import TinyTag
+
 from .. import s3_utils
 from ..database.repositories import MeetingRepository
 from ..schemas import Meeting
-from ..utils import get_audio_duration, get_video_duration
+from ..utils.audio import BYTES_IN_MB
 
 AUDIO_FORMATS = {"mp3", "wav", "m4a", "flac", "aac", "ogg", "oga"}
 VIDEO_FORMATS = {"mp4", "webm"}
@@ -28,18 +30,15 @@ class MeetingMediaService:
         file_format = filename.rsplit(".", maxsplit=1)[-1]
         s3_key = f"{uuid4()}.{file_format}"
         media_type = define_media_type(filename)
-        if media_type == "audio":
-            duration_seconds = get_audio_duration(content, audio_format=file_format)
-        else:
-            duration_seconds = get_video_duration(content, video_format=file_format)
-        file_size_mb = round(len(content) / 1_000_000, 2)
+        tag = TinyTag.get(content)
+        file_size_mb = round(len(content) / BYTES_IN_MB, 2)
         meeting = Meeting(
             original_filename=filename,
             media_type=media_type,
             s3_key=s3_key,
             format=file_format,
             size_mb=file_size_mb,
-            duration=duration_seconds,
+            duration=tag.duration,
         )
         await s3_utils.upload(content, key=s3_key)
         await self.repository.create(meeting)

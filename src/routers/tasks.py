@@ -4,9 +4,9 @@ from fastapi import Body, Depends, HTTPException, status
 from faststream.redis import RedisBroker, fastapi
 
 from ..database.repositories import TaskRepository
-from ..dependencies import get_task_handler, get_task_repo
+from ..dependencies import get_task_processor, get_task_repo
 from ..schemas import Task
-from ..services.task_processing import TaskHandler
+from ..services.task_processing import TaskProcessor
 from ..settings import settings
 
 router = fastapi.RedisRouter(url=settings.redis.url, prefix="/tasks", tags=["Tasks"])
@@ -47,5 +47,7 @@ async def get_task(task_id: UUID, repository: TaskRepository = Depends(get_task_
 
 
 @router.subscriber("meeting:minutes:generate")
-async def process_task(task_id: str, handler: TaskHandler = Depends(get_task_handler)) -> None:
-    await handler.handle(UUID(task_id))
+async def process_task(
+        task_id: str, processor: TaskProcessor = Depends(get_task_processor)
+) -> None:
+    await processor.process(UUID(task_id))

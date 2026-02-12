@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .database import repositories
 from .database.base import session_factory
 from .services.meeting_media import MeetingMediaService
-from .services.task_processing import TaskHandler
+from .services.task_processing import TaskProcessor
 
 
 async def get_db() -> AsyncSession:
@@ -32,8 +32,8 @@ def get_meeting_media_service(
     return MeetingMediaService(repository)
 
 
-def get_task_handler(session: AsyncSession = Depends(get_db)) -> TaskHandler:
-    return TaskHandler(
+def get_task_processor(session: AsyncSession = Depends(get_db)) -> TaskProcessor:
+    return TaskProcessor(
         meeting_repo=repositories.MeetingRepository(session),
         task_repo=repositories.TaskRepository(session),
         transcript_repo=repositories.TranscriptRepository(session),

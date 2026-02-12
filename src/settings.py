@@ -12,6 +12,7 @@ ENV_PATH = BASE_DIR / ".env"
 
 SQLITE_URL = f"sqlite+aiosqlite:///{BASE_DIR / "db.sqlite3"}"
 CHROMA_PATH = BASE_DIR / ".chroma"
+TEMP_DIR = BASE_DIR / ".temp"
 
 load_dotenv(ENV_PATH)
 

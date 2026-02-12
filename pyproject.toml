@@ -9,6 +9,7 @@ dependencies = [
     "aiohttp>=3.13.3",
     "aiosqlite>=0.22.1",
     "alembic>=1.18.3",
+    "anyio>=4.12.1",
     "asyncpg>=0.31.0",
     "audioop-lts>=0.2.2",
     "fastapi[all]>=0.128.1",
@@ -22,6 +23,7 @@ dependencies = [
     "pytz>=2025.2",
     "ruff>=0.15.0",
     "sqlalchemy>=2.0.46",
+    "tinytag>=2.2.0",
 ]
 
 [tool.ruff]

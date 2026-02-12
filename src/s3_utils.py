@@ -22,9 +22,9 @@ async def _get_client():
         yield client
 
 
-async def upload(file: bytes, key: str) -> None:
+async def upload(content: bytes, key: str) -> None:
     async with _get_client() as client:
-        await client.put_object(Bucket=BUCKET_NAME, Key=key, Body=file)
+        await client.put_object(Bucket=BUCKET_NAME, Key=key, Body=content)
 
 
 async def download(key: str) -> bytes:
