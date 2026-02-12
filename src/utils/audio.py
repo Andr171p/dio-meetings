@@ -130,7 +130,7 @@ def split_audio_into_chunks(
     """
 
     logger.info("Start split audio into chunks...")
-    audio_format = audio_file_path.rsplit(".", maxsplit=1)[-1].lower()
+    audio_format = str(audio_file_path).rsplit(".", maxsplit=1)[-1].lower()
     audio = AudioSegment.from_file(audio_file_path, format=audio_format)
     chunks = make_chunks(audio, chunk_duration_ms)
     chunks_count = len(chunks)
@@ -151,3 +151,19 @@ def split_audio_into_chunks(
             size_mb=size_md,
             duration=tag.duration,
         )
+
+
+def get_media_duration(file_path: str | Path) -> float:
+    """Получение длительности медиа контента в секундах"""
+
+    try:
+        probe = ffmpeg.probe(file_path)
+        duration_str = probe.get("format", {}).get("duration")
+        if duration_str is not None:
+            return float(duration_str)
+        for stream in probe.get("streams", []):
+            if "duration" in stream:
+                return float(stream["duration"])
+    except ffmpeg.Error as e:
+        error_msg = e.stderr.decode("utf-8", errors="replace") if e.stderr else str(e)
+        raise RuntimeError(f"FFprobe error: {error_msg}") from e

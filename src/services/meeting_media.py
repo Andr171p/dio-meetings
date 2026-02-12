@@ -1,14 +1,18 @@
 from typing import Literal
 
+import os
 from uuid import UUID, uuid4
 
-from tinytag import TinyTag
+import aiofiles.tempfile
 
 from .. import s3_utils
 from ..database.repositories import MeetingRepository
 from ..schemas import Meeting
-from ..utils.audio import BYTES_IN_MB
+from ..settings import TEMP_DIR
+from ..utils.audio import BYTES_IN_MB, get_media_duration
 
+MEDIA_DIR = TEMP_DIR / "media"
+MEDIA_DIR.mkdir(exist_ok=True, parents=True)
 AUDIO_FORMATS = {"mp3", "wav", "m4a", "flac", "aac", "ogg", "oga"}
 VIDEO_FORMATS = {"mp4", "webm"}
 
@@ -30,15 +34,22 @@ class MeetingMediaService:
         file_format = filename.rsplit(".", maxsplit=1)[-1]
         s3_key = f"{uuid4()}.{file_format}"
         media_type = define_media_type(filename)
-        tag = TinyTag.get(content)
         file_size_mb = round(len(content) / BYTES_IN_MB, 2)
+        async with aiofiles.tempfile.NamedTemporaryFile(
+            mode="wb", dir=MEDIA_DIR, suffix=f".{file_format}", delete=False
+        ) as tmp_file:
+            await tmp_file.write(content)
+            await tmp_file.flush()
+            tmp_file_path = tmp_file.name
+        duration_seconds = get_media_duration(tmp_file_path)
+        os.unlink(tmp_file_path)
         meeting = Meeting(
             original_filename=filename,
             media_type=media_type,
             s3_key=s3_key,
             format=file_format,
             size_mb=file_size_mb,
-            duration=tag.duration,
+            duration=duration_seconds,
         )
         await s3_utils.upload(content, key=s3_key)
         await self.repository.create(meeting)

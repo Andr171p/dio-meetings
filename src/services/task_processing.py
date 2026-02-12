@@ -13,6 +13,7 @@ from ..settings import TEMP_DIR
 from ..utils.audio import convert_video_to_audio, split_audio_into_chunks
 
 TASKS_DIR = TEMP_DIR / "tasks"
+TASKS_DIR.mkdir(exist_ok=True, parents=True)
 
 logger = logging.getLogger(__name__)
 

@@ -28,7 +28,7 @@ async def authenticate(use_ssl: bool = False) -> str:
         "Accept": "application/json",
         "RqUID": f"{rq_uid}",
     }
-    payload = {"scope": settings.sber_devices.scope}
+    payload = {"scope": settings.sberdevices.scope}
     url = f"{BASE_URL}/oauth"
     try:
         async with aiohttp.ClientSession() as session, session.post(
