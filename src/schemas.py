@@ -21,7 +21,7 @@ class Meeting(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     created_at: datetime = Field(default_factory=current_datetime)
     original_filename: str
-    content_type: Literal["audio", "video"]
+    media_type: Literal["audio", "video"]
     s3_key: str
     format: str
     size_mb: PositiveFloat
@@ -50,10 +50,7 @@ class Transcript(BaseModel):
 
     meeting_id: UUID
     full_text: str
-    word_count: PositiveInt
-    start_time: NonNegativeFloat
-    end_time: NonNegativeFloat
-    duration: PositiveFloat
+    words_count: PositiveInt
 
 
 class Minutes(BaseModel):

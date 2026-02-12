@@ -17,30 +17,30 @@ config = {
 
 
 @asynccontextmanager
-async def _get_s3_client():
-    async with session.create_client(**config) as s3_client:
-        yield s3_client
+async def _get_client():
+    async with session.create_client(**config) as client:
+        yield client
 
 
 async def upload(file: bytes, key: str) -> None:
-    async with _get_s3_client() as s3_client:
-        await s3_client.put_object(Bucket=BUCKET_NAME, Key=key, Body=file)
+    async with _get_client() as client:
+        await client.put_object(Bucket=BUCKET_NAME, Key=key, Body=file)
 
 
 async def download(key: str) -> bytes:
-    async with _get_s3_client() as s3_client:
-        response = await s3_client.get_object(Bucket=BUCKET_NAME, Key=key)
+    async with _get_client() as client:
+        response = await client.get_object(Bucket=BUCKET_NAME, Key=key)
         return await response["Body"].read()
 
 
 async def delete(key: str) -> None:
-    async with _get_s3_client() as s3_client:
-        await s3_client.delete_object(Bucket=BUCKET_NAME, Key=key)
+    async with _get_client() as client:
+        await client.delete_object(Bucket=BUCKET_NAME, Key=key)
 
 
 async def create_presigned_url(key: str, expires_in: int = 60 * 60) -> str:
-    async with _get_s3_client() as s3_client:
-        return await s3_client.generate_presigned_url(
+    async with _get_client() as client:
+        return await client.generate_presigned_url(
             "get_object",
             Params={"Bucket": BUCKET_NAME, "Key": key},
             ExpiresIn=expires_in

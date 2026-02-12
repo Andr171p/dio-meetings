@@ -9,7 +9,7 @@ from . import models
 from .base import Base
 
 
-class CrudRepository[SchemaT: BaseModel, ModelT: Base]:
+class SqlAlchemyRepository[SchemaT: BaseModel, ModelT: Base]:
     schema: type[SchemaT]
     model: type[ModelT]
 
@@ -20,6 +20,7 @@ class CrudRepository[SchemaT: BaseModel, ModelT: Base]:
         stmt = insert(self.model).values(**schema.model_dump())
         await self.session.execute(stmt)
         await self.session.flush()
+        await self.session.commit()
 
     async def read(self, id: UUID) -> SchemaT | None:  # noqa: A002
         stmt = select(self.model).where(self.model.id == id)
@@ -35,19 +36,37 @@ class CrudRepository[SchemaT: BaseModel, ModelT: Base]:
             .returning(self.model)
         )
         result = await self.session.execute(stmt)
+        await self.session.commit()
         model = result.scalar_one_or_none()
         return None if model is None else self.schema.model_validate(model)
 
     async def delete(self, id: UUID) -> None:  # noqa: A002
         stmt = delete(self.model).where(self.model.id == id)
         await self.session.execute(stmt)
+        await self.session.commit()
 
 
-class MeetingRepository(CrudRepository[schemas.Meeting, models.Meeting]):
+class MeetingRepository(SqlAlchemyRepository[schemas.Meeting, models.Meeting]):
     schema = schemas.Meeting
     model = models.Meeting
 
 
-class TaskRepository(CrudRepository[schemas.Task, models.Task]):
+class TaskRepository(SqlAlchemyRepository[schemas.Task, models.Task]):
     schema = schemas.Task
     model = models.Task
+
+
+class TranscriptRepository(SqlAlchemyRepository[schemas.Transcript, models.Transcript]):
+    schema = schemas.Transcript
+    model = models.Transcript
+
+    async def get_by_meeting(self, meeting_id: UUID) -> schemas.Transcript | None:
+        stmt = select(self.model).where(self.model.meeting_id == meeting_id)
+        result = await self.session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return None if model is None else self.schema.model_validate(model)
+
+
+class MinutesRepository(SqlAlchemyRepository[schemas.Minutes, models.Minutes]):
+    schema = schemas.Minutes
+    model = models.Minutes

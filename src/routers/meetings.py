@@ -1,12 +1,14 @@
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..database.repositories import MeetingRepository
-from ..dependencies import get_db
-from ..schemas import Meeting
-from ..service import delete_meeting, upload_meeting
+from ..database.repositories import MeetingRepository, TranscriptRepository
+from ..dependencies import get_meeting_media_service, get_meeting_repo, get_transcript_repo
+from ..schemas import Meeting, Transcript
+from ..services.meeting_media import MeetingMediaService
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/meetings", tags=["Meetings"])
 
@@ -17,8 +19,13 @@ router = APIRouter(prefix="/meetings", tags=["Meetings"])
     response_model=Meeting,
     summary="Загрузка записи встречи"
 )
-async def upload(meeting_file: UploadFile = File(...)) -> Meeting:
-    return await upload_meeting(await meeting_file.read(), meeting_file.filename)
+async def upload_meeting(
+        file: UploadFile = File(...),
+        service: MeetingMediaService = Depends(get_meeting_media_service),
+) -> Meeting:
+    logger.info("Starting reading client `%s` file, size %s bytes", file.filename, file.size)
+    content = await file.read()
+    return await service.upload_and_create(content, file.filename)
 
 
 @router.get(
@@ -27,11 +34,12 @@ async def upload(meeting_file: UploadFile = File(...)) -> Meeting:
     response_model=Meeting,
     summary="Получение информации о встрече"
 )
-async def get(meeting_id: UUID, session: AsyncSession = Depends(get_db)) -> Meeting:
-    repository = MeetingRepository(session)
+async def get_meeting(
+        meeting_id: UUID, repository: MeetingRepository = Depends(get_meeting_repo)
+) -> Meeting:
     meeting = await repository.read(meeting_id)
     if not meeting:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT_FOUND")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MEETING_NOT_FOUND")
     return meeting
 
 
@@ -40,5 +48,22 @@ async def get(meeting_id: UUID, session: AsyncSession = Depends(get_db)) -> Meet
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Удаление встречи",
 )
-async def delete(meeting_id: UUID) -> None:
-    return await delete_meeting(meeting_id)
+async def delete_meeting(
+        meeting_id: UUID, service: MeetingMediaService = Depends(get_meeting_media_service)
+) -> None:
+    return await service.delete(meeting_id)
+
+
+@router.get(
+    path="/{meeting_id}/transcript",
+    status_code=status.HTTP_200_OK,
+    response_model=Transcript,
+    summary="Получение расшифровки встречи"
+)
+async def get_meeting_transcript(
+        meeting_id: UUID, repository: TranscriptRepository = Depends(get_transcript_repo)
+) -> Transcript:
+    transcript = await repository.get_by_meeting(meeting_id)
+    if transcript is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TRANSCRIPT_NOT_FOUND")
+    return transcript

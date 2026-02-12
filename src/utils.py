@@ -66,14 +66,15 @@ def video_to_audio(
         return out
 
 
-def get_audio_duration(audio_file: bytes) -> float:
+def get_audio_duration(content: bytes, audio_format: str) -> float:
     """Получает длительность аудио в секундах"""
 
-    audio = AudioSegment.from_file(audio_file)
+    file = io.BytesIO(content)
+    audio = AudioSegment.from_file(file, format=audio_format)
     return audio.duration_seconds
 
 
-def get_video_duration(video_file: bytes, video_format: str) -> float:
+def get_video_duration(content: bytes, video_format: str) -> float:
     """Получает длительность видео в секундах"""
 
     try:
@@ -83,7 +84,7 @@ def get_video_duration(video_file: bytes, video_format: str) -> float:
             format=video_format,
             show_format=True,
             show_streams=False,
-            stdin=video_file,
+            stdin=content,
         )
         duration_str = probe.get("format", {}).get("duration")
         if duration_str is None:

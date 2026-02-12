@@ -1,14 +1,19 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import Body, Depends, HTTPException, status
+from faststream.redis import RedisBroker, fastapi
 
 from ..database.repositories import TaskRepository
-from ..dependencies import get_db
+from ..dependencies import get_task_handler, get_task_repo
 from ..schemas import Task
-from ..service import create_task
+from ..services.task_processing import TaskHandler
+from ..settings import settings
 
-router = APIRouter(prefix="/tasks", tags=["Tasks"])
+router = fastapi.RedisRouter(url=settings.redis.url, prefix="/tasks", tags=["Tasks"])
+
+
+def get_broker() -> RedisBroker:
+    return router.broker
 
 
 @router.post(
@@ -17,8 +22,15 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
     response_model=Task,
     summary="Создание задачи на генерацию протокола",
 )
-async def create(meeting_id: UUID = Body(..., embed=True)) -> Task:
-    return await create_task(meeting_id)
+async def create_task(
+        meeting_id: UUID = Body(..., embed=True),
+        repository: TaskRepository = Depends(get_task_repo),
+        broker: RedisBroker = Depends(get_broker),
+) -> Task:
+    task = Task(meeting_id=meeting_id)
+    await repository.create(task)
+    await broker.publish(str(task.id), channel="meeting:minutes:generate")
+    return task
 
 
 @router.get(
@@ -27,9 +39,13 @@ async def create(meeting_id: UUID = Body(..., embed=True)) -> Task:
     response_model=Task,
     summary="Получение текущей задачи"
 )
-async def get(task_id: UUID, session: AsyncSession = Depends(get_db)) -> Task:
-    repository = TaskRepository(session)
+async def get_task(task_id: UUID, repository: TaskRepository = Depends(get_task_repo)) -> Task:
     task = await repository.read(task_id)
     if task is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NOT_FOUND")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TASK_NOT_FOUND")
     return task
+
+
+@router.subscriber("meeting:minutes:generate")
+async def process_task(task_id: str, handler: TaskHandler = Depends(get_task_handler)) -> None:
+    await handler.handle(UUID(task_id))

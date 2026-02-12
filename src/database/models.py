@@ -10,7 +10,7 @@ class Meeting(Base):
     __tablename__ = "meetings"
 
     original_filename: Mapped[str]
-    content_type: Mapped[str]
+    media_type: Mapped[str]
     s3_key: Mapped[str] = mapped_column(unique=True)
     format: Mapped[str]
     size_mb: Mapped[float]
@@ -30,16 +30,12 @@ class Transcript(Base):
 
     meeting_id: Mapped[UUID]
     full_text: Mapped[str] = mapped_column(TEXT)
-    word_count: Mapped[int]
-    start_time: Mapped[float]
-    end_time: Mapped[float]
-    duration: Mapped[float]
+    words_count: Mapped[int]
 
 
 class Minutes(Base):
     __tablename__ = "minutes"
 
-    task_id: Mapped[UUID] = mapped_column(unique=True)
-    transcript: Mapped[str] = mapped_column(TEXT)
-    summary: Mapped[str] = mapped_column(TEXT)
-    audio_s3_key: Mapped[str] = mapped_column(unique=True)
+    meeting_id: Mapped[UUID]
+    title: Mapped[str]
+    md_text: Mapped[str] = mapped_column(TEXT)
