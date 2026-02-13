@@ -20,8 +20,33 @@ class Meeting(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     created_at: datetime = Field(default_factory=current_datetime)
     original_filename: str
+    title: str | None = None
+    participants: str | None = None
     media_type: Literal["audio", "video"]
     s3_key: str
+    format: str
+    size_mb: PositiveFloat
+    duration: PositiveFloat
+
+
+class MeetingUpdate(BaseModel):
+    """Добавление название встречи и её участников"""
+
+    title: str | None = None
+    participants: str | None = None
+
+
+class MeetingResponse(BaseModel):
+    """Схема API ответа `/meetings/{meeting_id}"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID = Field(default_factory=uuid4)
+    created_at: datetime = Field(default_factory=current_datetime)
+    original_filename: str
+    title: str | None = None
+    participants: str | None = None
+    media_type: Literal["audio", "video"]
     format: str
     size_mb: PositiveFloat
     duration: PositiveFloat
@@ -36,6 +61,7 @@ class Task(BaseModel):
     status: Literal[
         "pending",
         "processing",
+        "converting",
         "transcribing",
         "generating",
         "complete",
