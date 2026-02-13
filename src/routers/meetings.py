@@ -22,10 +22,11 @@ router = APIRouter(prefix="/meetings", tags=["Meetings"])
 async def upload_meeting(
         file: UploadFile = File(...),
         service: MeetingMediaService = Depends(get_meeting_media_service),
-) -> Meeting:
+) -> MeetingResponse:
     logger.info("Starting reading client `%s` file, size %s bytes", file.filename, file.size)
     content = await file.read()
-    return await service.upload_and_create(content, file.filename)
+    meeting = await service.upload_and_create(content, file.filename)
+    return MeetingResponse.model_validate(meeting)
 
 
 @router.patch(
@@ -38,14 +39,15 @@ async def update_meeting(
         meeting_id: UUID,
         update: MeetingUpdate,
         repository: MeetingRepository = Depends(get_meeting_repo)
-) -> Meeting:
-    return await repository.update(meeting_id, **update.model_dump(exclude_none=True))
+) -> MeetingResponse:
+    meeting = await repository.update(meeting_id, **update.model_dump(exclude_none=True))
+    return MeetingResponse.model_validate(meeting)
 
 
 @router.get(
     path="/{meeting_id}",
     status_code=status.HTTP_200_OK,
-    response_model=Meeting,
+    response_model=MeetingResponse,
     summary="Получение информации о встрече"
 )
 async def get_meeting(
@@ -54,7 +56,7 @@ async def get_meeting(
     meeting = await repository.read(meeting_id)
     if not meeting:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="MEETING_NOT_FOUND")
-    return meeting
+    return Meeting.model_validate(meeting)
 
 
 @router.delete(
