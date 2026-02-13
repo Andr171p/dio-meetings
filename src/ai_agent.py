@@ -23,3 +23,6 @@ async def generate_minutes(transcript: str) -> str:
     prompt = ChatPromptTemplate.from_template(MINUTES_PROMPT)
     chain = prompt | model | StrOutputParser()
     return await chain.ainvoke({"transcript": transcript})
+
+
+chat_agent = ...

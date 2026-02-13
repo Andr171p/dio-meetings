@@ -20,3 +20,5 @@ anyio~=4.12.1
 aiofiles~=25.1.0
 tinytag~=2.2.0
 aiosqlite~=0.22.1
+chromadb~=1.5.0
+langchain-text-splitters~=1.1.0
