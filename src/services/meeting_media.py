@@ -1,15 +1,15 @@
 from typing import Literal
 
-import os
 from uuid import UUID, uuid4
 
 import aiofiles.tempfile
+import anyio
 
 from .. import s3_utils
 from ..database.repositories import MeetingRepository
 from ..schemas import Meeting
 from ..settings import TEMP_DIR
-from ..utils.audio import BYTES_IN_MB, get_media_duration
+from ..utils.media import BYTES_IN_MB, get_media_duration
 
 MEDIA_DIR = TEMP_DIR / "media"
 MEDIA_DIR.mkdir(exist_ok=True, parents=True)
@@ -40,9 +40,9 @@ class MeetingMediaService:
         ) as tmp_file:
             await tmp_file.write(content)
             await tmp_file.flush()
-            tmp_file_path = tmp_file.name
+            tmp_file_path = anyio.Path(tmp_file.name)
         duration_seconds = get_media_duration(tmp_file_path)
-        os.unlink(tmp_file_path)
+        await tmp_file_path.unlink(missing_ok=True)
         meeting = Meeting(
             original_filename=filename,
             media_type=media_type,

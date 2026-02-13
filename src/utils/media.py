@@ -157,8 +157,10 @@ def get_media_duration(file_path: str | Path) -> float:
     """Получение длительности медиа контента в секундах"""
 
     try:
+        logger.info("Start getting media file duration `%s` ...", file_path)
         probe = ffmpeg.probe(file_path)
         duration_str = probe.get("format", {}).get("duration")
+        logger.info("Duration of media file `%s` - %s seconds", file_path, duration_str)
         if duration_str is not None:
             return float(duration_str)
         for stream in probe.get("streams", []):

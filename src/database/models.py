@@ -10,6 +10,8 @@ class Meeting(Base):
     __tablename__ = "meetings"
 
     original_filename: Mapped[str]
+    title: Mapped[str | None] = mapped_column(nullable=True)
+    participants: Mapped[str | None] = mapped_column(nullable=True)
     media_type: Mapped[str]
     s3_key: Mapped[str] = mapped_column(unique=True)
     format: Mapped[str]

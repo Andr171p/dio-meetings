@@ -10,7 +10,7 @@ from ..database import repositories
 from ..integrations import salute_speech
 from ..schemas import Minutes, Transcript
 from ..settings import TEMP_DIR
-from ..utils.audio import convert_video_to_audio, split_audio_into_chunks
+from ..utils.media import convert_video_to_audio, split_audio_into_chunks
 
 TASKS_DIR = TEMP_DIR / "tasks"
 TASKS_DIR.mkdir(exist_ok=True, parents=True)
