@@ -2,6 +2,7 @@ import logging
 from pathlib import Path
 from uuid import UUID
 
+import aiofiles
 import anyio
 
 from .. import s3_utils
@@ -14,6 +15,7 @@ from ..utils.media import convert_video_to_audio, split_audio_into_chunks
 
 TASKS_DIR = TEMP_DIR / "tasks"
 TASKS_DIR.mkdir(exist_ok=True, parents=True)
+CHUNK_SIZE = 8 * 1024 * 1024
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +35,14 @@ class TaskProcessor:
 
     async def prepare(self, meeting_id: UUID) -> Path:
         meeting = await self.meeting_repo.read(meeting_id)
-        content = await s3_utils.download(key=meeting.s3_key)
         path = f"{TASKS_DIR}/{meeting.id}_{meeting.media_type}.{meeting.format}"
         file_path = anyio.Path(path)
-        await file_path.write_bytes(content)
+        async with aiofiles.open(file_path, mode="wb") as file:
+            async for chunk in s3_utils.download_multipart(
+                    key=meeting.s3_key, chunk_size=CHUNK_SIZE
+            ):
+                await file.write(chunk)
+            await file.flush()
         if meeting.media_type == "video":
             content = await convert_video_to_audio(file_path, output_format="mp3")
             path = f"{TASKS_DIR}/{meeting.id}_audio.mp3"
@@ -55,6 +61,7 @@ class TaskProcessor:
             content = await anyio.Path(chunk.file_path).read_bytes()
             text = await salute_speech.recognize_async(content, audio_encoding="MP3")
             texts.append(text)
+        await anyio.Path(audio_file_path).unlink(missing_ok=True)
         full_text = "\n".join(texts)
         words_count = len(full_text.split(" "))
         transcript = Transcript(
@@ -71,7 +78,7 @@ class TaskProcessor:
         await self.task_repo.update(task_id, status="complete")
 
     async def process(self, task_id: UUID) -> None:
-        task = await self.task_repo.read(task_id)
+        task = await self.task_repo.update(task_id, status="processing")
         audio_file_path = await self.prepare(task.meeting_id)
         transcript = await self.transcribe(task_id, audio_file_path)
         await self.generate(task_id, transcript.full_text)

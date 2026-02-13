@@ -24,8 +24,7 @@ async def upload_meeting(
         service: MeetingMediaService = Depends(get_meeting_media_service),
 ) -> MeetingResponse:
     logger.info("Starting reading client `%s` file, size %s bytes", file.filename, file.size)
-    content = await file.read()
-    meeting = await service.upload_and_create(content, file.filename)
+    meeting = await service.upload_and_create(file)
     return MeetingResponse.model_validate(meeting)
 
 
