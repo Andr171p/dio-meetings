@@ -82,3 +82,12 @@ async def get_meeting_transcript(
     if transcript is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TRANSCRIPT_NOT_FOUND")
     return transcript
+
+
+@router.get(
+    path="",
+    status_code=status.HTTP_200_OK,
+    response_model=list[MeetingResponse],
+)
+async def get_meetings(repo: MeetingRepository = Depends(get_meeting_repo)) -> list[MeetingResponse]:
+    ...

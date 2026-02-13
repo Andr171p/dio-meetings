@@ -18,6 +18,7 @@ dependencies = [
     "langchain>=1.2.8",
     "langchain-openai>=1.1.7",
     "markdown-pdf>=1.11",
+    "md2docx-python>=1.0.0",
     "mypy>=1.19.1",
     "pydub>=0.25.1",
     "pytz>=2025.2",

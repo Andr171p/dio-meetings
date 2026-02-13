@@ -26,6 +26,12 @@ def get_transcript_repo(
     return repositories.TranscriptRepository(session)
 
 
+def get_minutes_repo(
+        session: AsyncSession = Depends(get_db)
+) -> repositories.MinutesRepository:
+    return repositories.MinutesRepository(session)
+
+
 def get_meeting_media_service(
         repository: repositories.MeetingRepository = Depends(get_meeting_repo)
 ) -> MeetingMediaService:

@@ -3,7 +3,7 @@ import io
 from markdown_pdf import MarkdownPdf, Section
 
 
-def md_to_pdf(md_text: str) -> bytes:
+def md_text_to_pdf(md_text: str) -> bytes:
     """Формирует PDF файл по Markdown тексту"""
 
     pdf = MarkdownPdf()

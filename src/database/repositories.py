@@ -70,3 +70,14 @@ class TranscriptRepository(SqlAlchemyRepository[schemas.Transcript, models.Trans
 class MinutesRepository(SqlAlchemyRepository[schemas.Minutes, models.Minutes]):
     schema = schemas.Minutes
     model = models.Minutes
+
+    async def get_by_meeting(self, meeting_id: UUID) -> schemas.Minutes | None:
+        stmt = (
+            select(self.model)
+            .where(self.model.meeting_id == meeting_id)
+            .order_by(self.model.created_at)
+            .limit(1)
+        )
+        result = await self.session.execute(stmt)
+        model = result.scalar_one_or_none()
+        return None if model is None else self.schema.model_validate(model)
