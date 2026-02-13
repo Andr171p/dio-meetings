@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from ..database.repositories import MeetingRepository, TranscriptRepository
 from ..dependencies import get_meeting_media_service, get_meeting_repo, get_transcript_repo
-from ..schemas import Meeting, MeetingUpdate, Transcript
+from ..schemas import Meeting, MeetingResponse, MeetingUpdate, Transcript
 from ..services.meeting_media import MeetingMediaService
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/meetings", tags=["Meetings"])
 @router.post(
     path="/upload",
     status_code=status.HTTP_201_CREATED,
-    response_model=Meeting,
+    response_model=MeetingResponse,
     summary="Загрузка записи встречи"
 )
 async def upload_meeting(
@@ -31,7 +31,7 @@ async def upload_meeting(
 @router.patch(
     path="/{meeting_id}",
     status_code=status.HTTP_200_OK,
-    response_model=Meeting,
+    response_model=MeetingResponse,
     summary="Добавление дополнительной информации"
 )
 async def update_meeting(
